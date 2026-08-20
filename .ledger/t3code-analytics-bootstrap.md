@@ -205,7 +205,7 @@ Verification evidence:
 - raw database, Parquet, NDJSON, log, environment, data, and export artifacts are ignored by Git
 - publication scan found no local paths, private hostnames, credentials, account values, or raw identifiers
 - Markdown parentheses appear only in link syntax
-- the repository has no remote and no commit
+- the published history contains only reviewed static design artifacts
 
 ## Complexity Delta
 

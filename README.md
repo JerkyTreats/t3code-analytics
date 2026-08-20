@@ -31,4 +31,4 @@ Each layer may narrow or derive from the layer above it. No downstream layer may
 
 ## Present Boundary
 
-The repository currently contains design evidence only. It has no raw data, extractor, model runtime, database, scheduler, service, dashboard, deployment, DNS record, or remote.
+The repository currently contains design evidence only. It has no raw data, extractor, model runtime, database, scheduler, service, dashboard, deployment, or DNS record.
