@@ -1,0 +1,354 @@
+schema_version: 1
+registry_id: t3code-analytics-sources-v1
+observed_at: 2026-08-20
+default_policy:
+  source_access: read-only-consistent-snapshot
+  raw_data_in_git: forbidden
+  field_admission: allowlist
+  identifiers: stable-pseudonymous-only-when-required
+  missing_values: null
+  content_fields: excluded
+
+sources:
+  - id: orchestration-events
+    owner: t3code-orchestration
+    evidence: t3code:apps/server/src/persistence/Migrations/001_OrchestrationEvents.ts
+    format: sqlite-table
+    authority: committed-domain-event-truth
+    grain: one-committed-domain-event
+    time_fields:
+      event_time: occurred_at
+      ordering: sequence
+    cadence: continuous
+    live_observation:
+      rows: 482991
+      first_at: 2026-03-07T13:23:54.101Z
+      last_at: 2026-08-20T14:51:38.774Z
+    sensitivity: high
+    admitted_fields:
+      - sequence
+      - aggregate_kind
+      - event_type
+      - occurred_at
+      - actor_kind
+      - pseudonymous_stream_key
+      - pseudonymous_correlation_key
+    excluded_fields:
+      - payload_json-by-default
+      - metadata_json-by-default
+      - raw-identifiers
+    disposition: primary-product-source
+
+  - id: command-receipts
+    owner: t3code-orchestration
+    evidence: t3code:apps/server/src/persistence/Migrations/002_OrchestrationCommandReceipts.ts
+    format: sqlite-table
+    authority: command-admission-outcome
+    grain: one-dispatched-command
+    time_fields:
+      event_time: accepted_at
+    cadence: continuous
+    live_observation:
+      rows: 479239
+      accepted: 479236
+      rejected: 3
+    sensitivity: medium
+    admitted_fields:
+      - aggregate_kind
+      - status
+      - accepted_at
+      - result_sequence
+      - pseudonymous_command_key
+    excluded_fields:
+      - error-text-by-default
+      - raw-identifiers
+    disposition: primary-reliability-source
+
+  - id: projection-threads
+    owner: t3code-persistence
+    evidence: t3code:apps/server/src/persistence/Migrations/005_Projections.ts
+    format: sqlite-table
+    authority: rebuildable-current-state
+    grain: one-thread
+    time_fields:
+      created_time: created_at
+      updated_time: updated_at
+    cadence: continuous
+    live_observation:
+      rows: 446
+    sensitivity: high
+    admitted_fields:
+      - pseudonymous_thread_key
+      - pseudonymous_project_key
+      - model-family
+      - runtime-mode
+      - interaction-mode
+      - created_at
+      - updated_at
+      - archived_at
+      - deleted_at
+      - settled-state
+    excluded_fields:
+      - title
+      - branch
+      - worktree-path
+      - raw-identifiers
+    disposition: convenience-dimension-source
+
+  - id: projection-turns
+    owner: t3code-persistence
+    evidence: t3code:apps/server/src/persistence/Migrations/005_Projections.ts
+    format: sqlite-table
+    authority: rebuildable-turn-state
+    grain: one-turn-attempt
+    time_fields:
+      requested_time: requested_at
+      started_time: started_at
+      completed_time: completed_at
+    cadence: continuous
+    live_observation:
+      rows: 4762
+      completed: 4622
+      error: 48
+      interrupted: 43
+      running: 39
+      pending: 10
+    sensitivity: medium
+    admitted_fields:
+      - pseudonymous_thread_key
+      - pseudonymous_turn_key
+      - state
+      - requested_at
+      - started_at
+      - completed_at
+      - checkpoint_status
+      - checkpoint_turn_count
+    excluded_fields:
+      - checkpoint-files
+      - checkpoint-reference
+      - raw-identifiers
+    disposition: primary-turn-fact-source
+
+  - id: projection-activities
+    owner: t3code-orchestration
+    evidence: t3code:apps/server/src/orchestration/Layers/ProviderRuntimeIngestion.ts
+    format: sqlite-table
+    authority: rebuildable-canonical-provider-activity
+    grain: one-canonical-thread-activity
+    time_fields:
+      event_time: created_at
+      ordering: sequence
+    cadence: continuous
+    live_observation:
+      rows: 388957
+      context_window_rows: 109936
+      context_window_turn_coverage: 1487
+    sensitivity: critical
+    admitted_fields:
+      - pseudonymous_thread_key
+      - pseudonymous_turn_key
+      - kind
+      - tone
+      - created_at
+      - allowlisted-usage-numerics
+      - allowlisted-tool-type
+      - allowlisted-status
+    excluded_fields:
+      - summary
+      - arbitrary-payload
+      - command-output
+      - file-content
+      - reasoning-content
+      - raw-identifiers
+    disposition: primary-agent-activity-source-with-field-projection
+
+  - id: projection-messages
+    owner: t3code-orchestration
+    evidence: t3code:apps/server/src/persistence/Migrations/005_Projections.ts
+    format: sqlite-table
+    authority: rebuildable-conversation-state
+    grain: one-message
+    time_fields:
+      created_time: created_at
+      updated_time: updated_at
+    cadence: continuous
+    live_observation:
+      rows: 35372
+    sensitivity: critical
+    admitted_fields:
+      - role
+      - created_at
+      - updated_at
+      - streaming-state
+      - text-length-only-if-approved
+    excluded_fields:
+      - text
+      - attachments
+      - raw-identifiers
+    disposition: excluded-from-first-slice
+
+  - id: provider-event-logs
+    owner: t3code-provider-runtime
+    evidence: t3code:apps/server/src/provider/Layers/ProviderEventLoggers.ts
+    format: rotating-thread-ndjson
+    authority: diagnostic-native-and-canonical-stream
+    grain: one-provider-or-canonical-runtime-event
+    cadence: continuous-best-effort
+    live_observation:
+      files: 1438
+      bytes: 13114388315
+    sensitivity: critical
+    admitted_fields: []
+    excluded_fields:
+      - all-fields-until-redaction-contract-exists
+    disposition: quarantine-diagnostic-only
+
+  - id: server-traces
+    owner: t3code-observability
+    evidence: t3code:apps/server/src/observability/Layers/Observability.ts
+    format: rotating-ndjson-and-optional-otlp
+    authority: operational-span-record
+    grain: one-completed-span
+    time_fields:
+      start_time: startTimeUnixNano
+      end_time: endTimeUnixNano
+    cadence: continuous-best-effort
+    sensitivity: critical
+    admitted_fields:
+      - name
+      - durationMs
+      - exit-tag
+      - allowlisted-low-cardinality-attributes
+      - pseudonymous-trace-key
+    excluded_fields:
+      - db-query-text
+      - cwd
+      - urls
+      - arbitrary-events
+      - raw-identifiers
+    disposition: separate-operational-fact-family
+
+  - id: otel-metrics
+    owner: t3code-observability
+    evidence: t3code:apps/server/src/observability/Metrics.ts
+    format: in-process-metrics-with-optional-otlp
+    authority: runtime-aggregates
+    grain: metric-series-point
+    cadence: export-interval-when-configured
+    live_observation:
+      persistence_enabled: false
+    sensitivity: low-to-medium
+    admitted_fields:
+      - metric-name
+      - time-window
+      - value
+      - allowlisted-low-cardinality-labels
+    excluded_fields:
+      - raw-identifiers
+      - paths
+      - urls
+    disposition: operational-gap-not-historical-product-source
+
+  - id: auth-access
+    owner: t3code-auth
+    evidence: t3code:apps/server/src/persistence/Migrations/040_SettingsAdminClients.ts
+    format: sqlite-tables
+    authority: access-and-connection-state
+    grain: one-client-or-auth-session
+    cadence: event-driven
+    live_observation:
+      publication_status: protected-not-published
+    sensitivity: critical
+    admitted_fields:
+      - issued-date
+      - last-connected-date
+      - revoked-state
+      - device-class
+      - client-class
+    excluded_fields:
+      - subject
+      - client-label
+      - ip-address
+      - user-agent
+      - session-id
+      - client-id
+      - pairing-data
+    disposition: aggregate-device-reach-only
+
+  - id: attachments
+    owner: t3code-attachment-store
+    evidence: t3code:apps/server/src/config.ts
+    format: files
+    authority: message-attachment-bytes
+    grain: one-attachment-file
+    cadence: event-driven
+    live_observation:
+      files: 162
+      bytes: 112190243
+    sensitivity: critical
+    admitted_fields:
+      - observation-date
+      - total-file-count
+      - total-bytes
+      - coarse-media-type
+    excluded_fields:
+      - file-content
+      - file-name
+      - identifiers
+    disposition: aggregate-storage-health-only
+
+  - id: source-control-and-terminal
+    owner: t3code-runtime-services
+    evidence:
+      - t3code:apps/server/src/observability/Metrics.ts
+      - t3code:apps/server/src/orchestration/Layers/ProviderRuntimeIngestion.ts
+    format: metrics-traces-and-canonical-activities
+    authority: operation-attempt-and-lifecycle-signals
+    grain: one-operation-or-session-event
+    cadence: continuous
+    sensitivity: high
+    admitted_fields:
+      - operation-class
+      - outcome
+      - duration
+      - coarse-tool-type
+      - event-time
+    excluded_fields:
+      - repository-path
+      - command-text
+      - terminal-content
+      - remote-url
+      - branch-name
+    disposition: derived-cross-source-facts
+
+  - id: deployment-state
+    owner: t3code-operations
+    evidence: live-observation:2026-08-20
+    format: service-and-version-metadata
+    authority: active-release-context
+    grain: one-deployment-interval
+    cadence: release-driven
+    sensitivity: medium
+    admitted_fields:
+      - semantic-version
+      - public-commit
+      - interval-start
+      - interval-end
+    excluded_fields:
+      - host-details
+      - process-details
+      - local-paths
+    disposition: slowly-changing-release-dimension
+
+  - id: provider-account-billing
+    owner: external-provider
+    evidence: t3code:packages/contracts/src/providerRuntime.ts
+    format: provider-specific-runtime-events
+    authority: not-owned-by-t3code
+    grain: provider-defined
+    cadence: provider-defined
+    sensitivity: critical
+    admitted_fields: []
+    excluded_fields:
+      - all-account-and-billing-fields
+    disposition: explicit-non-integration

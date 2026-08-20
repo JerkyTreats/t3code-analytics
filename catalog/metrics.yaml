@@ -1,0 +1,279 @@
+schema_version: 1
+catalog_id: t3code-usage-metrics-v1
+status: candidate-contracts
+observed_at: 2026-08-20
+
+global_rules:
+  default_time_zone: UTC
+  missing_measurement: null
+  zero_meaning: measured-empty-only
+  human_identity: forbidden
+  productivity_claims: forbidden
+  raw_content: forbidden
+  current_periods: calendar-day-calendar-week-calendar-month
+  stable_keys: pseudonymous-and-rotatable
+
+dimensions:
+  accepted:
+    - calendar-date
+    - provider-family
+    - model-family
+    - runtime-mode
+    - interaction-mode
+    - turn-state
+    - activity-kind
+    - tool-type
+    - client-class
+    - release-version
+  prohibited:
+    - person
+    - account
+    - email
+    - ip-address
+    - raw-user-agent
+    - workspace-path
+    - repository-remote
+    - prompt-text
+    - response-text
+    - command-text
+    - session-identifier
+
+buckets:
+  - id: adoption-and-reach
+    question: Is T3Code being used repeatedly across time and surfaces
+    metrics:
+      - id: active-days
+        grain: calendar-period
+        definition: distinct UTC dates with at least one turn request
+        source: projection-turns
+        status: measurable-now
+      - id: active-threads
+        grain: calendar-period
+        definition: distinct pseudonymous threads with at least one turn request
+        source: projection-turns
+        status: measurable-now
+      - id: new-threads
+        grain: calendar-period
+        definition: threads whose creation time falls in the period
+        source: projection-threads
+        status: measurable-now
+      - id: returning-thread-share
+        grain: calendar-period
+        definition: active threads created before the current period divided by active threads
+        source: projection-turns-plus-projection-threads
+        status: measurable-after-modeling
+      - id: connected-client-classes
+        grain: calendar-period
+        definition: distinct approved client classes with a connection in the period
+        source: auth-access
+        status: partial
+        caveat: Last connection time does not reconstruct every connection event
+
+  - id: work-throughput
+    question: How much agent work enters and reaches terminal state
+    metrics:
+      - id: turns-requested
+        grain: calendar-period
+        definition: count of turn attempts by request time
+        source: projection-turns
+        status: measurable-now
+      - id: turn-completion-rate
+        grain: calendar-period
+        definition: terminal completed turns divided by terminal turns
+        source: projection-turns
+        status: measurable-now
+      - id: turn-time-to-start
+        grain: turn
+        definition: started time minus requested time
+        source: projection-turns
+        status: measurable-now
+      - id: turn-runtime
+        grain: turn
+        definition: completed time minus started time for terminal turns
+        source: projection-turns
+        status: measurable-now
+      - id: interrupted-turn-share
+        grain: calendar-period
+        definition: interrupted turns divided by terminal turns
+        source: projection-turns
+        status: measurable-now
+      - id: in-flight-age
+        grain: extraction-run
+        definition: extraction time minus request time for nonterminal turns
+        source: projection-turns
+        status: measurable-now
+        caveat: Historical snapshots are required for trend analysis
+
+  - id: agent-activity
+    question: What kinds of work happen inside turns
+    metrics:
+      - id: tool-starts-per-turn
+        grain: turn
+        definition: count of canonical tool start activities
+        source: projection-activities
+        status: measurable-now
+      - id: tool-completion-rate
+        grain: calendar-period
+        definition: completed tool activities divided by started tool activities after lifecycle reconciliation
+        source: projection-activities
+        status: needs-reconciliation-model
+      - id: plan-update-share
+        grain: calendar-period
+        definition: turns with a plan update divided by turns
+        source: projection-activities
+        status: measurable-now
+      - id: context-compactions
+        grain: calendar-period
+        definition: count of context compaction activities
+        source: projection-activities
+        status: measurable-now
+      - id: approval-request-rate
+        grain: calendar-period
+        definition: approval requests per one hundred turns
+        source: projection-activities
+        status: measurable-now
+      - id: orchestration-fanout
+        grain: turn
+        definition: count of collaboration agent tool calls per turn
+        source: projection-activities
+        status: partial
+        caveat: Requires allowlisted tool type extraction and provider coverage checks
+
+  - id: model-capacity-and-cost
+    question: How much model capacity is consumed and where pressure appears
+    metrics:
+      - id: token-observation-coverage
+        grain: calendar-period
+        definition: turns with at least one valid context snapshot divided by turns
+        source: projection-activities
+        status: measurable-now
+      - id: last-input-tokens-per-turn
+        grain: turn
+        definition: sum of valid last input token increments after deduplication
+        source: projection-activities
+        status: needs-semantic-validation
+      - id: last-output-tokens-per-turn
+        grain: turn
+        definition: sum of valid last output token increments after deduplication
+        source: projection-activities
+        status: needs-semantic-validation
+      - id: peak-context-utilization
+        grain: turn
+        definition: maximum used tokens divided by maximum tokens within a turn
+        source: projection-activities
+        status: measurable-after-modeling
+      - id: automatic-compaction-share
+        grain: calendar-period
+        definition: turns whose usage snapshots declare automatic compaction divided by covered turns
+        source: projection-activities
+        status: measurable-after-modeling
+      - id: provider-reported-cost
+        grain: turn
+        definition: provider-reported total cost in USD when present
+        source: provider-runtime-events
+        status: partial-and-provider-specific
+        caveat: Null is required when no provider cost exists
+      - id: api-equivalent-cost
+        grain: turn
+        definition: measured token classes multiplied by a versioned pricing table
+        source: conformed-token-facts
+        status: research-only
+        caveat: Counterfactual cost is not actual billing
+
+  - id: reliability
+    question: Where does T3Code fail, retry, recover, or leave stale state
+    metrics:
+      - id: command-rejection-rate
+        grain: calendar-period
+        definition: rejected command receipts divided by all command receipts
+        source: command-receipts
+        status: measurable-now
+      - id: runtime-error-rate
+        grain: calendar-period
+        definition: runtime error activities per one hundred turns
+        source: projection-activities
+        status: measurable-now
+      - id: turn-start-recovery-count
+        grain: calendar-period
+        definition: durable turn-start recovery outcomes
+        source: otel-metrics
+        status: unavailable-historically
+      - id: provider-turn-failure-rate
+        grain: calendar-period
+        definition: provider turn failures divided by provider turn requests
+        source: otel-metrics-plus-projection-turns
+        status: partial
+      - id: stale-in-flight-turns
+        grain: extraction-run
+        definition: nonterminal turns older than an accepted threshold
+        source: projection-turns
+        status: threshold-not-accepted
+
+  - id: delivery-and-code-operations
+    question: How often does agent work interact with source control and delivery mechanisms
+    metrics:
+      - id: git-operation-count
+        grain: calendar-period
+        definition: count of allowlisted source control operation classes
+        source: source-control-and-terminal
+        status: partial
+      - id: git-operation-failure-rate
+        grain: calendar-period
+        definition: failed source control operations divided by completed operations
+        source: source-control-and-terminal
+        status: needs-conformed-event-contract
+      - id: terminal-session-count
+        grain: calendar-period
+        definition: started terminal sessions
+        source: otel-metrics
+        status: unavailable-historically
+      - id: checkpoint-capture-rate
+        grain: calendar-period
+        definition: turns with a successful checkpoint divided by eligible turns
+        source: projection-activities-plus-projection-turns
+        status: measurable-after-modeling
+      - id: settled-thread-share
+        grain: extraction-run
+        definition: settled active threads divided by active threads
+        source: projection-threads
+        status: measurable-now
+
+  - id: data-health
+    question: Can the analytical claims be trusted
+    metrics:
+      - id: source-freshness
+        grain: extraction-run-source
+        definition: extraction time minus latest admitted source time
+        source: extraction-manifest
+        status: first-slice-required
+      - id: sequence-gap-count
+        grain: extraction-run
+        definition: missing sequence values inside the extracted event interval
+        source: orchestration-events
+        status: first-slice-required
+      - id: orphan-turn-count
+        grain: extraction-run
+        definition: turns whose pseudonymous thread key has no admitted thread dimension row
+        source: conformed-turn-facts
+        status: first-slice-required
+      - id: token-coverage
+        grain: extraction-run
+        definition: eligible turns with at least one valid token snapshot divided by eligible turns
+        source: conformed-token-facts
+        status: first-slice-required
+      - id: extraction-reconciliation-delta
+        grain: extraction-run-source
+        definition: admitted row count minus expected source row count after documented exclusions
+        source: extraction-manifest
+        status: first-slice-required
+
+explicit_non_metrics:
+  - human-hours
+  - developer-productivity
+  - individual-performance
+  - prompt-quality-score
+  - reasoning-quality-score
+  - authorship
+  - contributor-count
+  - account-value
+  - surveillance-style-feature-clickstream

@@ -1,0 +1,15 @@
+.cache/
+.tmp/
+data/
+exports/
+*.duckdb
+*.duckdb.wal
+*.parquet
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+*.log
+*.ndjson
+.env
+.env.*
+!.env.example
