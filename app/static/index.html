@@ -4,113 +4,160 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
-    <meta name="description" content="Private T3Code aggregate operations dashboard">
-    <title>T3Code Flight Recorder</title>
+    <meta name="description" content="Private T3Code project usage analytics">
+    <title>T3Code Work Atlas</title>
     <link rel="stylesheet" href="/styles.css">
     <script type="module" src="/app.js"></script>
   </head>
   <body>
     <div class="grain" aria-hidden="true"></div>
+    <header class="app-bar">
+      <a class="brand" href="#overview" aria-label="T3Code Work Atlas home">
+        <span class="brand-mark">T3</span>
+        <span><strong>Work Atlas</strong><small>Usage analytics</small></span>
+      </a>
+      <nav class="view-nav" aria-label="Dashboard views">
+        <a href="#overview" class="active">Portfolio</a>
+        <span>Project detail</span>
+      </nav>
+      <div class="status-rail" aria-live="polite">
+        <span class="pulse" aria-hidden="true"></span>
+        <div><strong id="status-label">Acquiring snapshot</strong><span id="snapshot-time">Awaiting source</span></div>
+        <button id="refresh-button" type="button">Refresh</button>
+      </div>
+    </header>
+
     <main class="shell">
-      <header class="masthead reveal">
-        <div>
-          <p class="eyebrow">Leviathan internal · Aggregate telemetry</p>
-          <h1>T3Code<br><em>flight recorder</em></h1>
-        </div>
-        <div class="status-rail">
-          <span class="pulse" aria-hidden="true"></span>
+      <section id="view-overview" class="view reveal">
+        <header class="page-heading">
           <div>
-            <strong id="status-label">Acquiring snapshot</strong>
-            <span id="snapshot-time">Awaiting source</span>
+            <p class="eyebrow">Portfolio · rolling seven days</p>
+            <h1>What is moving<br><em>through T3Code</em></h1>
           </div>
-        </div>
-      </header>
+          <p class="lede">A project-first view of current work distribution, recency, and agent activity. Counts describe system behavior, never people or productivity.</p>
+        </header>
 
-      <section class="hero-grid reveal delay-one" aria-label="Usage summary">
-        <article class="metric metric-primary">
-          <span class="metric-index">01</span>
-          <p>Turns requested</p>
-          <strong id="turns-requested">—</strong>
-          <small id="active-days">Across — active days</small>
-        </article>
-        <article class="metric">
-          <span class="metric-index">02</span>
-          <p>Terminal completion</p>
-          <strong id="completion-rate">—</strong>
-          <small id="terminal-mix">— completed</small>
-        </article>
-        <article class="metric">
-          <span class="metric-index">03</span>
-          <p>Active work objects</p>
-          <strong id="active-threads">—</strong>
-          <small>Privacy-safe distinct threads</small>
-        </article>
-        <article class="metric metric-alert">
-          <span class="metric-index">04</span>
-          <p>Nonterminal now</p>
-          <strong id="in-flight">—</strong>
-          <small id="stale-in-flight">— older than six hours</small>
-        </article>
-      </section>
+        <section class="metric-grid" aria-label="Current portfolio summary">
+          <article class="metric metric-primary">
+            <p>Active projects</p>
+            <strong id="active-projects">—</strong>
+            <small id="active-projects-context">— of — current</small>
+          </article>
+          <article class="metric">
+            <p>Turns requested</p>
+            <strong id="turns-requested">—</strong>
+            <small id="turns-delta">Compared with preceding seven days</small>
+          </article>
+          <article class="metric">
+            <p>Active threads</p>
+            <strong id="active-threads">—</strong>
+            <small>Distinct threads with a requested turn</small>
+          </article>
+          <article class="metric">
+            <p>Request cohort completion</p>
+            <strong id="completion-rate">—</strong>
+            <small id="terminal-denominator">— terminal turns</small>
+          </article>
+        </section>
 
-      <section class="chart-panel reveal delay-two">
-        <div class="section-heading">
-          <div>
-            <p class="eyebrow">42 day operating trace</p>
-            <h2>Work entering the system</h2>
-          </div>
-          <div class="legend" aria-label="Chart legend">
-            <span><i class="legend-turns"></i>Requested</span>
-            <span><i class="legend-tools"></i>Tool starts</span>
-          </div>
-        </div>
-        <div id="timeline" class="timeline" role="img" aria-label="Daily turns and tool activity"></div>
-        <div class="timeline-axis"><span id="range-start">—</span><span id="range-end">—</span></div>
-      </section>
+        <section class="focus-grid">
+          <article class="panel trend-panel">
+            <div class="section-heading">
+              <div><p class="eyebrow">42 day composition</p><h2>Work distribution over time</h2></div>
+              <div id="project-legend" class="legend" aria-label="Project chart legend"></div>
+            </div>
+            <div id="portfolio-chart" class="chart" role="group" aria-label="Daily requested turns by project"></div>
+            <div class="chart-axis"><span id="range-start">—</span><span>Daily requested turns</span><span id="range-end">—</span></div>
+            <details id="portfolio-chart-data" class="chart-data"><summary>View chart data</summary><div class="table-wrap"></div></details>
+          </article>
 
-      <section class="lower-grid reveal delay-three">
-        <article class="activity-panel">
-          <div class="section-heading compact">
-            <div>
-              <p class="eyebrow">Last 30 days</p>
-              <h2>Activity strata</h2>
+          <aside class="panel shift-panel">
+            <div class="section-heading compact"><div><p class="eyebrow">Window movement</p><h2>Portfolio shifts</h2></div></div>
+            <dl class="shift-list">
+              <div><dt>Current only</dt><dd id="current-only-projects">—</dd><small>Active now, quiet in the prior window</small></div>
+              <div><dt>Cooling</dt><dd id="cooling-projects">—</dd><small>Active in the prior window, quiet now</small></div>
+              <div><dt>Top three share</dt><dd id="top-three-share">—</dd><small>Share of all current-window turns</small></div>
+              <div><dt>Dormant beyond 30d</dt><dd id="dormant-projects">—</dd><small>Current projects without recent work</small></div>
+            </dl>
+          </aside>
+        </section>
+
+        <section class="panel project-panel">
+          <div class="section-heading project-heading">
+            <div><p class="eyebrow">Project navigator</p><h2>Current portfolio</h2></div>
+            <div class="table-controls">
+              <label><span>Find project</span><input id="project-search" type="search" placeholder="Search titles" autocomplete="off"></label>
+              <label><span>Recency</span><select id="recency-filter"><option value="all">All recency</option><option value="within-24h">Within 24 hours</option><option value="two-to-seven-days">Two to seven days</option><option value="eight-to-thirty-days">Eight to thirty days</option><option value="beyond-30d">Beyond thirty days</option><option value="unknown">Unknown</option><option value="invalid">Invalid timestamp</option></select></label>
             </div>
           </div>
-          <div id="activity-list" class="activity-list"></div>
-        </article>
-
-        <article class="reliability-panel">
-          <p class="eyebrow">Terminal outcomes</p>
-          <h2>Signal integrity</h2>
-          <div class="outcome-ring" id="outcome-ring">
-            <div><strong id="completed-count">—</strong><span>complete</span></div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th scope="col">Project</th><th scope="col">Last work</th><th scope="col" class="numeric">Turns · 7d</th><th scope="col" class="numeric">Share</th><th scope="col" class="numeric">vs prior</th><th scope="col" class="numeric">Active threads</th><th scope="col">Current signals</th></tr></thead>
+              <tbody id="project-table"></tbody>
+            </table>
           </div>
-          <dl class="outcomes">
-            <div><dt>Error</dt><dd id="error-count">—</dd></div>
-            <div><dt>Interrupted</dt><dd id="interrupted-count">—</dd></div>
-            <div><dt>Projection lag</dt><dd id="projection-lag">—</dd></div>
-          </dl>
-        </article>
+          <p id="project-empty" class="empty" hidden>No projects match this view.</p>
+        </section>
 
-        <article class="source-panel">
-          <p class="eyebrow">Extraction contract</p>
-          <h2>Source posture</h2>
-          <dl class="source-facts">
-            <div><dt>SQLite</dt><dd>Read only</dd></div>
-            <div><dt>Snapshot</dt><dd>Transactional</dd></div>
-            <div><dt>Store</dt><dd>DuckDB</dd></div>
-            <div><dt>Payloads</dt><dd>Excluded</dd></div>
-            <div><dt>Freshness</dt><dd id="source-freshness">—</dd></div>
-            <div><dt>Sequence</dt><dd id="source-sequence">—</dd></div>
-          </dl>
-        </article>
+        <section class="lower-grid">
+          <article class="panel activity-panel">
+            <div class="section-heading compact"><div><p class="eyebrow">Rolling seven days</p><h2>Activity rate</h2></div><p class="section-note">Occurrences per 100 turns</p></div>
+            <div id="activity-list" class="bar-list"></div>
+          </article>
+          <article class="panel quality-panel">
+            <div class="section-heading compact"><div><p class="eyebrow">Attribution coverage</p><h2>What the hierarchy knows</h2></div></div>
+            <div id="coverage-bar" class="coverage-bar" aria-label="Activity attribution coverage"></div>
+            <dl class="source-facts">
+              <div><dt>Turn attributed</dt><dd id="coverage-attributed">—</dd></div>
+              <div><dt>Thread level</dt><dd id="coverage-thread">—</dd></div>
+              <div><dt>Unresolved turn</dt><dd id="coverage-unresolved">—</dd></div>
+              <div><dt>Projection lag</dt><dd id="projection-lag">—</dd></div>
+              <div><dt>Source freshness</dt><dd id="source-freshness">—</dd></div>
+            </dl>
+          </article>
+        </section>
       </section>
 
-      <footer>
-        <span>T3A · 001</span>
-        <p>Counts describe system activity. They do not measure people or productivity.</p>
-        <button id="refresh-button" type="button">Refresh view</button>
-      </footer>
+      <section id="view-project" class="view" hidden>
+        <button id="back-button" class="back-button" type="button">← Portfolio</button>
+        <header class="project-detail-heading">
+          <div><p class="eyebrow">Project detail · rolling seven days</p><h1 id="project-title">—</h1></div>
+          <div class="project-recency"><span>Last admitted work</span><strong id="project-last-work">—</strong><small id="project-recency-band">—</small></div>
+        </header>
+
+        <section class="metric-grid project-metrics" aria-label="Project summary">
+          <article class="metric metric-primary"><p>Turns requested</p><strong id="project-turns">—</strong><small id="project-turns-delta">—</small></article>
+          <article class="metric"><p>Active threads</p><strong id="project-active-threads">—</strong><small id="project-thread-context">— current threads</small></article>
+          <article class="metric"><p>Portfolio share</p><strong id="project-share">—</strong><small id="project-share-denominator">Of — project-linked turns</small></article>
+          <article class="metric"><p>Request cohort completion</p><strong id="project-completion">—</strong><small id="project-terminal-denominator">— terminal turns</small></article>
+        </section>
+
+        <section class="panel project-trend-panel">
+          <div class="section-heading"><div><p class="eyebrow">42 day trace</p><h2>Project work entering T3Code</h2></div><div class="legend"><span><i class="swatch project-line"></i>Requested turns</span></div></div>
+          <div id="project-chart" class="chart project-chart" role="group" aria-label="Daily project requested turns"></div>
+          <div class="chart-axis"><span id="project-range-start">—</span><span>Solid line · observed values</span><span id="project-range-end">—</span></div>
+          <details id="project-chart-data" class="chart-data"><summary>View chart data</summary><div class="table-wrap"></div></details>
+        </section>
+
+        <section class="detail-grid">
+          <article class="panel">
+            <div class="section-heading compact"><div><p class="eyebrow">Current threads</p><h2>Recency distribution</h2></div></div>
+            <div id="thread-recency" class="bar-list"></div>
+          </article>
+          <article class="panel">
+            <div class="section-heading compact"><div><p class="eyebrow">Rolling seven days</p><h2>Terminal outcomes</h2></div></div>
+            <div id="project-outcome" class="outcome-stack"></div>
+            <dl class="source-facts outcome-facts"><div><dt>Completed</dt><dd id="project-completed">—</dd></div><div><dt>Error</dt><dd id="project-error">—</dd></div><div><dt>Interrupted</dt><dd id="project-interrupted">—</dd></div><div><dt>Nonterminal now</dt><dd id="project-in-flight">—</dd></div></dl>
+          </article>
+          <article class="panel">
+            <div class="section-heading compact"><div><p class="eyebrow">Normalized activity</p><h2>Activity families</h2></div><p class="section-note">Per 100 turns</p></div>
+            <div id="project-activity" class="bar-list"></div>
+            <p id="project-activity-note" class="coverage-note"></p>
+          </article>
+        </section>
+      </section>
     </main>
+
+    <footer class="site-footer"><span>T3A · 002</span><p>Read-only source · coherent snapshots · private internal route</p><span id="source-sequence">Sequence —</span></footer>
   </body>
 </html>

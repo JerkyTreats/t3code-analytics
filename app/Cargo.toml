@@ -9,6 +9,7 @@ publish = false
 [dependencies]
 anyhow = "1.0"
 axum = "0.8.9"
+blake3 = "1.8"
 chrono = { version = "0.4.42", default-features = false, features = ["clock", "serde"] }
 duckdb = { version = "~1.10505.0", features = ["bundled"] }
 rusqlite = "0.40.2"

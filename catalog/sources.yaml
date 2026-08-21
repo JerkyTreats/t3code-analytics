@@ -1,6 +1,6 @@
 schema_version: 1
 registry_id: t3code-analytics-sources-v1
-observed_at: 2026-08-20
+observed_at: 2026-08-21
 default_policy:
   source_access: read-only-consistent-snapshot
   raw_data_in_git: forbidden
@@ -10,6 +10,34 @@ default_policy:
   content_fields: excluded
 
 sources:
+  - id: projection-projects
+    owner: t3code-persistence
+    evidence: t3code:apps/server/src/persistence/Migrations/005_Projections.ts
+    format: sqlite-table
+    authority: rebuildable-current-state
+    grain: one-project
+    time_fields:
+      created_time: created_at
+      updated_time: updated_at
+      deleted_time: deleted_at
+    cadence: continuous
+    live_observation:
+      rows: 28
+      current_rows: 25
+    sensitivity: high
+    admitted_fields:
+      - pseudonymous_project_key
+      - title-for-private-internal-dashboard-under-user-override
+      - created_at
+      - deleted_at
+    excluded_fields:
+      - workspace-root
+      - scripts
+      - raw-model-selection
+      - raw-identifiers
+      - repository-identity
+    disposition: private-project-dimension-source
+
   - id: orchestration-events
     owner: t3code-orchestration
     evidence: t3code:apps/server/src/persistence/Migrations/001_OrchestrationEvents.ts
