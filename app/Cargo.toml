@@ -1,0 +1,28 @@
+[package]
+name = "t3code-analytics"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.95"
+license = "MIT"
+publish = false
+
+[dependencies]
+anyhow = "1.0"
+axum = "0.8.9"
+chrono = { version = "0.4.42", default-features = false, features = ["clock", "serde"] }
+duckdb = { version = "~1.10505.0", features = ["bundled"] }
+rusqlite = "0.40.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tokio = { version = "1.47", features = ["macros", "rt-multi-thread", "signal", "sync", "time"] }
+tower-http = { version = "0.7.0", features = ["trace"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "fmt", "json"] }
+
+[dev-dependencies]
+tempfile = "3.21"
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+strip = true

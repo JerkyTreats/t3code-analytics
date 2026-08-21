@@ -1,5 +1,6 @@
 .cache/
 .tmp/
+target/
 data/
 exports/
 *.duckdb

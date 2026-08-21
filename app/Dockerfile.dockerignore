@@ -1,0 +1,13 @@
+.git
+.github
+.lakebed
+assessment
+catalog
+experiments
+research
+target
+*.duckdb
+*.parquet
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
