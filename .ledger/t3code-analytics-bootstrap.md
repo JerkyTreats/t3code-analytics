@@ -109,7 +109,7 @@ The frozen set comes from [the data accessibility assessment](../assessment/2026
 
 ## Authorized Active Slice
 
-Status: in progress
+Status: complete
 
 Product increment: one Rust service reads the live T3Code SQLite source through an operating-system-enforced read-only Kubernetes mount, computes allowlisted aggregates inside one consistent SQLite read transaction, publishes the latest accepted snapshot into one embedded DuckDB file, and serves an internal dashboard over valid HTTPS.
 
@@ -164,7 +164,7 @@ The user then authorized a read-only Lakebed and homelab reconciliation. Delegat
 
 ## Proposed First Slice
 
-Status: awaiting approval
+Status: superseded by the authorized active slice
 
 Product increment: a local privacy-safe baseline export from a consistent T3Code SQLite snapshot.
 
@@ -214,11 +214,11 @@ Stop conditions:
 | --- | --- | --- | --- | --- |
 | P0 | Lakebed last-mile feasibility with synthetic snapshots | complete | Reviewed privacy boundary | User authorization on 2026-08-20 |
 | P0R | Lakebed hosting and homelab reconciliation | complete | P0 capsule and read-only cluster access | User authorization on 2026-08-20 |
-| P1 | Privacy-safe Rust snapshot service and baseline dashboard | in progress | Accepted envelope | User YOLO authorization on 2026-08-20 |
+| P1 | Privacy-safe Rust snapshot service and baseline dashboard | complete | Accepted envelope | User YOLO authorization on 2026-08-20 |
 | P2 | Versioned analytical models and metric views | backlog | P1 complete | Reconciled facts and settled token semantics |
 | P3 | Recurring extraction, retention, and freshness monitoring | backlog | P2 complete | Repeated manual runs and real freshness need |
-| P4 | Query-serving boundary and internal authentication | partially activated by YOLO slice | P1 aggregate contract | Internal service authorization |
-| P5 | Internal dashboard and hostname | partially activated by YOLO slice | P1 aggregate contract | Internal hostname authorization |
+| P4 | Query-serving boundary and internal access | complete for YOLO slice | P1 aggregate contract | Internal service authorization |
+| P5 | Internal dashboard and hostname | complete for YOLO slice | P1 aggregate contract | Internal hostname authorization |
 
 ## Architectural Expansion Decisions
 
@@ -233,7 +233,7 @@ Stop conditions:
 | Internal hostname | Browser access to accepted views | Local report | Internal dashboard | User-authorized P1 | accepted |
 | Lakebed feasibility capsule | Atomic materialized snapshot publication and reactive presentation | Static report only | Experiment owner | User-authorized P0 | passed-locally |
 | Lakebed self-hosting | Durable cluster-owned Lakebed runtime | Lakebed hosted plane or conventional internal app | None | Read-only assessment only | blocked-by-runtime-contract |
-| Internal analytics hostname | Browser access to a stable backend | No route until a durable backend exists | None | Not authorized | correctly-absent |
+| Internal analytics hostname | Browser access to a stable backend | No route until a durable backend exists | Internal dashboard | User-authorized P1 | accepted-and-live |
 
 ## Review State
 
@@ -309,14 +309,32 @@ Completed Lakebed feasibility experiment:
 
 ## Next Slice Reassessment
 
-Before P1 starts, the user must accept the provisional tripwires and decide whether analytical artifacts may remain local and private. P1 must not activate P2 or any dashboard work automatically.
+P1 is complete. Any P2 work still requires a new accepted slice. Parquet export, cost modeling, raw content analysis, new T3Code events, horizontal scaling, and public access remain outside the accepted envelope.
 
 ## Final Reconciliation
 
-State: design complete, Lakebed feasibility experiment complete, homelab reconciliation complete, and P1 implementation in progress with local plus container proof complete and Kubernetes deployment pending.
+State: design complete, Lakebed feasibility experiment complete, homelab reconciliation complete, and P1 deployed with direct HTTPS proof.
+
+P1 closeout evidence:
+
+- GitHub container build completed successfully
+- the cluster runs the immutable GHCR digest
+- Argo owns the dedicated application and shared publication state
+- the Pod is Ready with zero restarts
+- the source host mount is read only and SQLite opens in query-only mode
+- DuckDB persists aggregate snapshots on a bound local-path volume
+- Prometheus discovers the service through a ServiceMonitor
+- the authoritative internal DNS server returns the shared Caddy address
+- the renewed Let's Encrypt certificate contains the analytics hostname
+- trusted HTTP/2 requests return the dashboard and aggregate API with status 200
+- the deployed aggregate response passed the forbidden-field and forbidden-value scan
+- desktop and mobile rendering passed against the live HTTPS service
+- the first certificate expansion required one Caddy rollout restart to load the renewed shared SAN certificate
 
 ## Commit Effects
 
 If applied, this commit records the completed Lakebed experiment and homelab reconciliation, then adds the authorized Rust analytics service, embedded DuckDB aggregate store, privacy test, hardened container, and container publication workflow without changing T3Code or live infrastructure.
 
 If applied, the infrastructure commit pins the verified analytics image, mounts the T3Code source directory read only, provisions DuckDB storage and monitoring, adds Argo CD ownership, and publishes the internal HTTPS hostname through the shared certificate bundle.
+
+If applied, this closeout commit records the live Kubernetes, DNS, TLS, privacy, performance, and browser evidence and reconciles the replacement outcome into the Lakebed reflection.

@@ -512,3 +512,25 @@ The highest-value additions for homelab and private-cloud adoption would be:
 8. explicit base-path emission or a documented dedicated-host requirement
 
 The product remains compelling within its intended hosted model. The friction appears when a successful capsule is mistaken for a portable runtime artifact. Making that boundary more explicit in the CLI and documentation would prevent unsafe self-hosting attempts.
+
+## Replacement Spike And Final Evidence
+
+The conventional replacement made the boundary unusually clear. A small Rust service using Axum, rusqlite, and the official DuckDB binding went from source inspection to a live internal dashboard without changing T3Code. It reads the current SQLite source through explicit read-only flags and an exact read-only host mount, computes only allowlisted aggregates inside one transaction, and retains accepted snapshots in one DuckDB file.
+
+T3Code itself is not a Kubernetes workload. It runs as a host systemd user service on Leviathan, while a selectorless Kubernetes Service points back to that host. The analytics workload does run in the same single-node k3s cluster. This makes the read-only host mount honest and narrow, while keeping the HTTP service, storage, probes, monitoring, image pull, GitOps ownership, DNS, and TLS inside the established cluster pattern.
+
+Direct production evidence passed:
+
+- the immutable GHCR image built successfully
+- the Pod became Ready with zero restarts
+- the four-gigabyte live source refreshed in about 0.6 seconds
+- the steady local proof container used about 33 MiB of memory
+- source and projection sequences matched with zero lag
+- the deployed API exposed aggregates without forbidden fields or values
+- trusted HTTP/2 requests returned status 200 through the requested hostname
+- the renewed Let's Encrypt certificate covered the hostname
+- desktop and mobile rendering passed against the live service
+
+The shared certificate expansion revealed one homelab operations seam. The operator issued the correct certificate, updated authoritative DNS, rendered the correct Caddy route, and marked the publication Ready. The existing Caddy process still held the earlier certificate in memory and returned a TLS alert until its Deployment restarted. Lakebed did not cause this, but the replacement spike found it because it demanded end-to-end proof instead of treating controller status as completion.
+
+This outcome strengthens the constructive Lakebed conclusion. The capsule was fast for proving the analytical interaction contract. The conventional app was straightforward for owning persistence, recovery shape, security posture, monitoring, cluster scheduling, custom hostname, and trusted TLS. Lakebed would become materially more useful in this homelab if a compiled capsule could cross that same boundary through a supported durable runner and custom-origin contract.
