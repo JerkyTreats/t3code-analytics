@@ -1,7 +1,7 @@
 # T3Code Analytics Hierarchy Delivery Ledger
 
 Date: 2026-08-21
-Status: implemented-awaiting-live-proof
+Status: complete
 Owner: root agent
 
 ## Objective
@@ -98,4 +98,33 @@ T3Code runtime behavior, authentication, cluster publication, and DNS are inspec
 
 ## Closeout State
 
-The project-aware extraction, version-two snapshot contract, project serving facts, portfolio landing, and project drilldown are implemented locally. Unit, lint, release-build, live-source reconciliation, privacy, desktop, and narrow-viewport proof are in progress. Cluster promotion remains pending.
+The project-aware extraction, version-two snapshot contract, project serving facts, portfolio landing, and project drilldown are live at `analytics.t3code.internal.jerkytreats.dev`.
+
+Delivery evidence:
+
+- application commit `b0ef489a9f7ac240a02e026608f9b3a8c10cb4bb`
+- container workflow `32488137578` passed in 16 minutes and 18 seconds
+- promoted image digest `sha256:2a7eb425c41a01531998cc137a25828ebf5e91f7743b29f82a232e739c00d842`
+- GitOps commit `4282fc883320e79bfc893172afd60c695fa07299`
+- Argo application state `Synced Healthy`
+- deployment rolled out one ready replica with zero restarts
+- HTTPS root and API returned success through the trusted internal certificate path
+- readiness returned HTTP 200
+- live contract version is 2 and projection lag is 0
+- 25 unique stable project keys reconcile to 781 portfolio turns
+- every project has a complete 42-day spine
+- project activity totals reconcile to 72,047 admitted occurrences
+- activity coverage components reconcile exactly to the admitted total
+- project, thread, and long-form turn source identifiers have zero matches in live JSON
+- workspace, branch, and worktree values have zero matches in live JSON
+- collaborative browser proof passed for the portfolio landing and project drilldown at a narrow viewport
+- no browser console or network errors were observed
+
+Rust unit tests, formatting, clippy with warnings denied, release build, JavaScript parse, HTML parse, YAML parse, diff checks, local live-source reconciliation, privacy scans, desktop browser proof, and narrow-viewport browser proof all passed before promotion.
+
+Nonblocking follow-up:
+
+- version the DuckDB serving schema independently from the JSON contract
+- extend tests across every readiness and deleted-thread edge
+- give any future public contract explicit request-cohort field names
+- keep the GitHub collector gated until a purpose-built read-only credential and repository-topology privacy design exist

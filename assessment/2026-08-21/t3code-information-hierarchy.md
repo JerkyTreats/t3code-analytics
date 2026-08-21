@@ -201,3 +201,34 @@ Project-to-repository publication remains blocked by the repository-topology rul
 - project-title admission remains limited to the private internal route
 
 Current portfolio metrics include only nondeleted projects. Historical turn and activity facts under those projects remain included even when their source thread was later deleted. Current-thread counts include only nondeleted threads. A deleted project is excluded from the current portfolio and does not rewrite retained prior DuckDB snapshots.
+
+## Live Experiment Outcome
+
+The project hierarchy is now the primary analytical spine at the private internal route. The portfolio landing moves from total usage into project distribution, window movement, recency, thread load, terminal outcomes, and normalized activity. Selecting a project preserves the same definitions while reducing the grain to one project.
+
+The first live coherent snapshot produced these portfolio signals:
+
+- 25 current projects, with 11 active in seven days and 3 active in 24 hours
+- 781 requested turns in the current rolling window, up 534 from the preceding equal window
+- 7 current-only projects and 1 cooling project
+- 78.9 percent of current turns concentrated in the top three projects
+- 12 current projects with no admitted work in more than 30 days
+- 39 active threads in the current window
+- 98.5 percent terminal completion across the request cohort
+- 72,047 admitted activity occurrences, with 63.6 percent attributed to a projected turn and the remainder explicitly classified
+
+These are portfolio-management signals, not productivity scores. Concentration shows where T3Code attention accumulated. Current-only and cooling identify change between equal windows. Recency and active-thread counts distinguish recent breadth from raw turn volume. Project drilldown then shows whether a portfolio change came from new threads, repeated turns, outcome mix, or activity composition.
+
+## Experiment Reflection
+
+The original dashboard failed because the data hierarchy and the interface hierarchy were different. T3Code organizes work as projects, threads, turns, and activity, while the first board started at system-wide totals. The semantic repair was therefore a data-model change before it was a visual change.
+
+The most useful reasoning move was to define analytical grains and admission rules before choosing charts. That exposed three facts that a styling pass would have missed:
+
+- project titles were the only human-meaningful project label available, so their publication needed an explicit private-route exception
+- activity was not uniformly attributable to turns, so coverage had to be a first-class metric instead of hidden filtering
+- local Git state could suggest a correlation but could not truthfully establish push history
+
+The implementation also benefited from separating portfolio questions from project questions. The landing now answers where work is moving and how concentrated it is. The drilldown answers what changed inside one project. That boundary keeps the landing at a useful abstraction level and prevents it from becoming a wall of unrelated cards.
+
+The highest-leverage next experiment is the gated GitHub commit-visibility seam. It should test whether a T3Code thread window contains a commit that GitHub can currently resolve, while discarding all repository and identity details before persistence. It should not claim push time, contribution, authorship, or productivity.
