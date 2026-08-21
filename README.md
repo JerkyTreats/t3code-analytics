@@ -10,6 +10,8 @@ T3Code already has a valuable analytical spine. Its hosted instance retains an a
 
 The first data implementation is now a bounded Rust service that opens T3Code SQLite through a read-only mount, holds one consistent read transaction, admits only allowlisted aggregate fields, and publishes accepted snapshots into embedded DuckDB. Axum serves the aggregate API and internal dashboard from the same process. Parquet remains a later portability option. OpenTelemetry and Prometheus remain the operational telemetry direction. Lakebed informed the interaction contract but is no longer on the production path.
 
+The current presentation experiment applies that same discipline recursively. The atlas elevates portfolio signals, project pages provide single-context synthesis, source boards preserve source-specific detail, and the evidence ledger exposes the exact admitted facts and interpretation limits. Git and `.codex` boards remain explicit contract candidates until their data can cross an accepted privacy-safe admission boundary.
+
 ## Information Hierarchy
 
 1. Source truth records what T3Code actually committed or emitted.
@@ -35,4 +37,4 @@ Each layer may narrow or derive from the layer above it. No downstream layer may
 
 ## Present Boundary
 
-The repository contains design evidence, one isolated Lakebed experiment, and one implemented Rust analytics service. The service has passed synthetic privacy tests, live read-only extraction, hardened container execution, and desktop plus mobile visual inspection. Kubernetes and hostname deployment are the remaining active delivery steps. No raw data is stored in this repository.
+The repository contains design evidence, one isolated Lakebed experiment, and one implemented Rust analytics service. The service has passed synthetic privacy tests, live read-only extraction, hardened container execution, and desktop plus mobile visual inspection. It is hosted on the private internal Kubernetes route. No raw data is stored in this repository.

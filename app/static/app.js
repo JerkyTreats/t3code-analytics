@@ -8,6 +8,39 @@ const byId = id => document.getElementById(id);
 const setText = (id, value) => { byId(id).textContent = value; };
 let dashboardData = null;
 
+const candidateBoards = {
+  git: {
+    mark: "GIT",
+    title: "Durable change evidence",
+    status: "Contract candidate · no data admitted",
+    description: "A repository evidence board designed to remain independent until an explicit privacy-safe project mapping and source contract are accepted.",
+    note: "This board starts verbose. It would expose deterministic change evidence before any signal is elevated into project synthesis.",
+    boundary: "Repository locations, remotes, branches, authorship, commit subjects, and cross-repository relationships are not admitted by the current contract. This board therefore shows its intended components without manufacturing values.",
+    components: [
+      ["Commit cadence", "Daily commit distribution and return intervals", "event time · commit count · measured coverage"],
+      ["Change classes", "Conventional change categories without raw commit text", "class · count · classification coverage"],
+      ["Verification milestones", "Tests and checks attached to immutable change evidence", "result · completion time · commit reference"],
+      ["Delivery closure", "Merge, tag, and release transitions", "state transition · event time · coverage"],
+      ["Narrative clusters", "Provisional related-change episodes", "claim · confidence · evidence count · model revision"],
+    ],
+  },
+  codex: {
+    mark: "CDX",
+    title: "Agent context evidence",
+    status: "Contract candidate · no data admitted",
+    description: "A `.codex` evidence board for goal state, orchestration, model routing, and semantic collection coverage without copying private content or topology.",
+    note: "The useful layer is transition metadata and validation coverage, not prompts, paths, summaries, identities, or raw event payloads.",
+    boundary: "Raw prompts, objective text, local paths, repository fields, logs, memories, account data, session data, and source identifiers remain excluded. A separate adapter must discard them before any durable or published boundary.",
+    components: [
+      ["Goal transitions", "Active, blocked, resumed, complete, and constrained states", "state · transition time · terminal disposition"],
+      ["Orchestration shape", "Aggregate fanout and child terminal outcomes", "role class · child count · status coverage"],
+      ["Model routing", "Model and reasoning class by admitted work episode", "model class · effort class · observed count"],
+      ["Run lifecycle", "Turn states and duration distributions", "status · duration bucket · coverage"],
+      ["Semantic coverage", "Provisional claims that have passed admission checks", "claim class · confidence · validator state"],
+    ],
+  },
+};
+
 async function loadDashboard() {
   setText("status-label", "Refreshing aggregate");
   try {
@@ -42,6 +75,8 @@ function renderOverview(data) {
   setText("source-freshness", formatDuration(snapshot.sourceFreshnessSeconds));
   setText("source-sequence", `Sequence ${number.format(snapshot.sourceEventSequence)}`);
 
+  renderElevatedSignals(summary, activityCoverage);
+
   renderPortfolioChart(projects, daily);
   renderProjectTable(projects);
   renderBars("activity-list", activity.slice(0, 8).map(item => ({
@@ -50,6 +85,24 @@ function renderOverview(data) {
     display: item.perHundredTurns == null ? "—" : rate.format(item.perHundredTurns),
   })));
   renderCoverage(activityCoverage);
+}
+
+function renderElevatedSignals(summary, coverage) {
+  const share = summary.topThreeTurnShare;
+  const shape = share == null ? "Unknown" : share >= 0.75 ? "Concentrated" : share >= 0.5 ? "Focused" : "Distributed";
+  setText("portfolio-shape", shape);
+  setText("portfolio-shape-note", share == null ? "No measured distribution in this window." : `${percent.format(share)} of requested turns sit in the three most active projects.`);
+
+  const entered = summary.currentOnlyProjects;
+  const cooled = summary.coolingProjects;
+  const movement = entered > cooled ? "Expanding" : entered < cooled ? "Cooling" : "Balanced";
+  setText("portfolio-movement", movement);
+  setText("portfolio-movement-note", `${number.format(entered)} projects entered current activity while ${number.format(cooled)} cooled.`);
+
+  const attribution = coverage.total ? coverage.attributedToTurn / coverage.total : null;
+  const readiness = attribution == null ? "Unmeasured" : attribution >= 0.9 ? "Strong" : attribution >= 0.65 ? "Usable" : "Partial";
+  setText("portfolio-evidence", readiness);
+  setText("portfolio-evidence-note", attribution == null ? "No admitted activity coverage." : `${percent.format(attribution)} of admitted activity resolves to a projected turn.`);
 }
 
 function renderPortfolioChart(projects, daily) {
@@ -174,18 +227,41 @@ function renderCoverage(coverage) {
 
 function route() {
   if (!dashboardData) return;
-  const match = window.location.hash.match(/^#project\/(.+)$/);
-  const project = match ? dashboardData.projects.find(item => item.key === decodeURIComponent(match[1])) : null;
+  const hash = window.location.hash || "#overview";
+  const sourceMatch = hash.match(/^#project\/([^/]+)\/(t3code|git|codex|evidence)$/);
+  const projectMatch = sourceMatch ? null : hash.match(/^#project\/([^/]+)$/);
+  const key = sourceMatch?.[1] || projectMatch?.[1];
+  const project = key ? dashboardData.projects.find(item => item.key === decodeURIComponent(key)) : null;
+  const board = sourceMatch?.[2] || null;
+
   byId("view-overview").hidden = Boolean(project);
-  byId("view-project").hidden = !project;
-  document.querySelector(".view-nav a").classList.toggle("active", !project);
-  document.querySelector(".view-nav span").classList.toggle("active", Boolean(project));
+  byId("view-project").hidden = !project || Boolean(board);
+  byId("view-source").hidden = !project || !board;
+  updateTopNavigation(project, board);
+
   if (project) {
     renderProject(project);
+    if (board) renderSourceBoard(project, board);
     window.scrollTo({ top: 0, behavior: "auto" });
   } else {
     document.title = "T3Code Work Atlas";
   }
+}
+
+function updateTopNavigation(project, board) {
+  document.querySelector(".view-nav > a:first-child").classList.toggle("active", !project);
+  byId("nav-project").classList.toggle("active", Boolean(project) && !board);
+  byId("nav-source").classList.toggle("active", Boolean(board) && board !== "evidence");
+  byId("nav-evidence").classList.toggle("active", board === "evidence");
+  setText("nav-project", project ? project.title : "Project");
+  setText("nav-source", board && board !== "evidence" ? sourceLabel(board) : "Source");
+  const root = project ? `#project/${encodeURIComponent(project.key)}` : "#overview";
+  byId("nav-project").href = root;
+  byId("nav-source").href = project ? `${root}/${board && board !== "evidence" ? board : "t3code"}` : "#overview";
+  byId("nav-evidence").href = project ? `${root}/evidence` : "#overview";
+  ["nav-project", "nav-source", "nav-evidence"].forEach(id => {
+    byId(id).setAttribute("aria-disabled", String(!project));
+  });
 }
 
 function renderProject(project) {
@@ -205,6 +281,8 @@ function renderProject(project) {
   setText("project-error", number.format(project.turnsError7d));
   setText("project-interrupted", number.format(project.turnsInterrupted7d));
   setText("project-in-flight", number.format(project.turnsInFlight));
+  renderProjectReading(project);
+  setProjectLinks(project);
   renderLineChart(project.daily);
   renderThreadRecency(project.threadRecency);
   renderOutcome(project, terminal);
@@ -217,6 +295,128 @@ function renderProject(project) {
   const known = coverage.total ? coverage.attributedToTurn / coverage.total : null;
   setText("project-activity-note", known == null ? "No activity measured in this window." : `${percent.format(known)} is attributed to a projected turn. Thread-level activity remains separate.`);
   document.title = `${project.title} · T3Code Work Atlas`;
+}
+
+function renderProjectReading(project) {
+  const delta = project.turns7d - project.turnsPrevious;
+  const direction = project.turnsPrevious === 0 && project.turns7d > 0
+    ? "Newly active in this window"
+    : delta > 0
+      ? "Activity is increasing"
+      : delta < 0
+        ? "Activity is cooling"
+        : "Activity is steady";
+  setText("project-reading-title", direction);
+  setText("project-reading-note", `${number.format(project.turns7d)} requested turns and ${number.format(project.activeThreads7d)} active threads are admitted from T3Code. Git and .codex remain independent contract candidates, so no cross-source narrative is asserted yet.`);
+  setText("project-synthesis-state", "Single-source · provisional");
+}
+
+function setProjectLinks(project) {
+  const root = `#project/${encodeURIComponent(project.key)}`;
+  byId("open-t3code-board").href = `${root}/t3code`;
+  byId("open-git-board").href = `${root}/git`;
+  byId("open-codex-board").href = `${root}/codex`;
+  byId("open-evidence-board").href = `${root}/evidence`;
+}
+
+function renderSourceBoard(project, board) {
+  const root = `#project/${encodeURIComponent(project.key)}`;
+  byId("source-back-button").dataset.target = root;
+  ["t3code", "git", "codex", "evidence"].forEach(name => {
+    byId(`tab-${name}`).href = `${root}/${name}`;
+    byId(`tab-${name}`).classList.toggle("active", name === board);
+  });
+
+  byId("board-t3code").hidden = board !== "t3code";
+  byId("board-candidate").hidden = !["git", "codex"].includes(board);
+  byId("board-evidence").hidden = board !== "evidence";
+  byId("source-depth-item").classList.toggle("active", board !== "evidence");
+  byId("evidence-depth-item").classList.toggle("active", board === "evidence");
+
+  if (board === "t3code") renderT3CodeBoard(project);
+  if (board === "git" || board === "codex") renderCandidateBoard(project, board);
+  if (board === "evidence") renderEvidenceBoard(project);
+}
+
+function renderT3CodeBoard(project) {
+  setText("source-kicker", `${project.title} · source board`);
+  setText("source-title", "T3Code evidence");
+  setText("source-status", "Admitted · live aggregate");
+  setText("source-description", "The most detailed view of the currently admitted project, thread, turn, outcome, and activity hierarchy.");
+  setText("source-current-threads", number.format(project.currentThreads));
+  setText("source-active-threads", number.format(project.activeThreads7d));
+  setText("source-new-thread-context", `${number.format(project.newThreads7d)} newly active threads`);
+  setText("source-in-flight", number.format(project.turnsInFlight));
+  const coverage = project.activityCoverage;
+  setText("source-attribution-rate", coverage.total ? percent.format(coverage.attributedToTurn / coverage.total) : "—");
+  document.title = `T3Code evidence · ${project.title}`;
+}
+
+function renderCandidateBoard(project, board) {
+  const config = candidateBoards[board];
+  setText("source-kicker", `${project.title} · source board`);
+  setText("source-title", sourceLabel(board));
+  setText("source-status", config.status);
+  setText("source-description", config.description);
+  setText("candidate-mark", config.mark);
+  setText("candidate-title", config.title);
+  setText("candidate-note", config.note);
+  setText("candidate-boundary", config.boundary);
+
+  const target = byId("candidate-components");
+  target.replaceChildren();
+  config.components.forEach(([title, description, grain], index) => {
+    const article = document.createElement("article");
+    const numberLabel = document.createElement("span");
+    numberLabel.textContent = `${String(index + 1).padStart(2, "0")}`;
+    const heading = document.createElement("strong");
+    heading.textContent = title;
+    const body = document.createElement("p");
+    body.textContent = description;
+    const meta = document.createElement("small");
+    meta.textContent = grain;
+    article.append(numberLabel, heading, body, meta);
+    target.append(article);
+  });
+  document.title = `${sourceLabel(board)} board · ${project.title}`;
+}
+
+function renderEvidenceBoard(project) {
+  setText("source-kicker", `${project.title} · deepest layer`);
+  setText("source-title", "Evidence ledger");
+  setText("source-status", "Admitted facts · no semantic inference");
+  setText("source-description", "The exact values beneath project synthesis, including their grain and the limits on what they can support.");
+
+  const coverage = project.activityCoverage;
+  const terminal = project.turnsCompleted7d + project.turnsError7d + project.turnsInterrupted7d;
+  const rows = [
+    ["Last admitted work", formatTime(project.lastWorkAt), "Project", "Recency only; not attention duration"],
+    ["Requested turns", number.format(project.turns7d), "Project · rolling 7d", "Activity volume; not productivity"],
+    ["Prior requested turns", number.format(project.turnsPrevious), "Project · preceding 7d", "Comparison baseline only"],
+    ["Current threads", number.format(project.currentThreads), "Project snapshot", "Projected work objects; not sessions or people"],
+    ["Active threads", number.format(project.activeThreads7d), "Project · rolling 7d", "Threads with requested turns"],
+    ["Newly active threads", number.format(project.newThreads7d), "Project · rolling 7d", "First activity in the window; not thread creation"],
+    ["Completed turns", number.format(project.turnsCompleted7d), "Request cohort · rolling 7d", "Source terminal state"],
+    ["Error turns", number.format(project.turnsError7d), "Request cohort · rolling 7d", "Source terminal state"],
+    ["Interrupted turns", number.format(project.turnsInterrupted7d), "Request cohort · rolling 7d", "Source terminal state"],
+    ["Nonterminal turns", number.format(project.turnsInFlight), "Current source state", "Not equivalent to unfinished human work"],
+    ["Terminal completion", terminal ? percent.format(project.turnsCompleted7d / terminal) : "—", "Terminal request cohort", "Excludes nonterminal turns"],
+    ["Turn-attributed activity", number.format(coverage.attributedToTurn), "Admitted activity", "Exact projected-turn association"],
+    ["Thread-level activity", number.format(coverage.threadLevel), "Admitted activity", "No exact turn association"],
+    ["Unresolved-turn activity", number.format(coverage.unresolvedTurn), "Admitted activity", "Reference could not be resolved"],
+  ];
+  const target = byId("evidence-table");
+  target.replaceChildren();
+  rows.forEach(values => {
+    const row = document.createElement("tr");
+    values.forEach(value => row.append(cell(value)));
+    target.append(row);
+  });
+  document.title = `Evidence ledger · ${project.title}`;
+}
+
+function sourceLabel(value) {
+  return { t3code: "T3Code", git: "Git", codex: ".codex", evidence: "Evidence" }[value] || value;
 }
 
 function renderLineChart(rows) {
@@ -421,6 +621,7 @@ function activityLabel(value) {
 
 byId("refresh-button").addEventListener("click", loadDashboard);
 byId("back-button").addEventListener("click", () => { window.location.hash = "overview"; });
+byId("source-back-button").addEventListener("click", event => { window.location.hash = event.currentTarget.dataset.target; });
 byId("project-search").addEventListener("input", () => dashboardData && renderProjectTable(dashboardData.projects));
 byId("recency-filter").addEventListener("change", () => dashboardData && renderProjectTable(dashboardData.projects));
 window.addEventListener("hashchange", route);

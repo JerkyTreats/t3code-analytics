@@ -16,9 +16,11 @@
         <span class="brand-mark">T3</span>
         <span><strong>Work Atlas</strong><small>Usage analytics</small></span>
       </a>
-      <nav class="view-nav" aria-label="Dashboard views">
-        <a href="#overview" class="active">Portfolio</a>
-        <span>Project detail</span>
+      <nav id="view-nav" class="view-nav" aria-label="Current dashboard hierarchy">
+        <a href="#overview" class="active">Atlas</a>
+        <a id="nav-project" href="#overview" aria-disabled="true">Project</a>
+        <a id="nav-source" href="#overview" aria-disabled="true">Source</a>
+        <a id="nav-evidence" href="#overview" aria-disabled="true">Evidence</a>
       </nav>
       <div class="status-rail" aria-live="polite">
         <span class="pulse" aria-hidden="true"></span>
@@ -36,6 +38,31 @@
           </div>
           <p class="lede">A project-first view of current work distribution, recency, and agent activity. Counts describe system behavior, never people or productivity.</p>
         </header>
+
+        <ol class="depth-map" aria-label="Dashboard information hierarchy">
+          <li class="active"><span>01</span><strong>Atlas</strong><small>Highest useful abstraction</small></li>
+          <li><span>02</span><strong>Project</strong><small>One work context</small></li>
+          <li><span>03</span><strong>Source board</strong><small>One evidence system</small></li>
+          <li><span>04</span><strong>Evidence</strong><small>Verbose admitted facts</small></li>
+        </ol>
+
+        <section class="signal-deck" aria-label="Elevated portfolio signals">
+          <article class="signal-card signal-card-primary">
+            <span>Portfolio shape</span>
+            <strong id="portfolio-shape">—</strong>
+            <p id="portfolio-shape-note">Derived from current work distribution.</p>
+          </article>
+          <article class="signal-card">
+            <span>Project movement</span>
+            <strong id="portfolio-movement">—</strong>
+            <p id="portfolio-movement-note">Compares projects entering and leaving the current window.</p>
+          </article>
+          <article class="signal-card">
+            <span>Evidence readiness</span>
+            <strong id="portfolio-evidence">—</strong>
+            <p id="portfolio-evidence-note">Share of activity resolved to a projected turn.</p>
+          </article>
+        </section>
 
         <section class="metric-grid" aria-label="Current portfolio summary">
           <article class="metric metric-primary">
@@ -120,8 +147,14 @@
 
       <section id="view-project" class="view" hidden>
         <button id="back-button" class="back-button" type="button">← Portfolio</button>
+        <ol class="depth-map depth-map-compact" aria-label="Dashboard information hierarchy">
+          <li><span>01</span><strong>Atlas</strong></li>
+          <li class="active"><span>02</span><strong>Project</strong></li>
+          <li><span>03</span><strong>Source board</strong></li>
+          <li><span>04</span><strong>Evidence</strong></li>
+        </ol>
         <header class="project-detail-heading">
-          <div><p class="eyebrow">Project detail · rolling seven days</p><h1 id="project-title">—</h1></div>
+          <div><p class="eyebrow">Project synthesis · rolling seven days</p><h1 id="project-title">—</h1></div>
           <div class="project-recency"><span>Last admitted work</span><strong id="project-last-work">—</strong><small id="project-recency-band">—</small></div>
         </header>
 
@@ -139,22 +172,138 @@
           <details id="project-chart-data" class="chart-data"><summary>View chart data</summary><div class="table-wrap"></div></details>
         </section>
 
-        <section class="detail-grid">
-          <article class="panel">
-            <div class="section-heading compact"><div><p class="eyebrow">Current threads</p><h2>Recency distribution</h2></div></div>
-            <div id="thread-recency" class="bar-list"></div>
-          </article>
-          <article class="panel">
-            <div class="section-heading compact"><div><p class="eyebrow">Rolling seven days</p><h2>Terminal outcomes</h2></div></div>
-            <div id="project-outcome" class="outcome-stack"></div>
-            <dl class="source-facts outcome-facts"><div><dt>Completed</dt><dd id="project-completed">—</dd></div><div><dt>Error</dt><dd id="project-error">—</dd></div><div><dt>Interrupted</dt><dd id="project-interrupted">—</dd></div><div><dt>Nonterminal now</dt><dd id="project-in-flight">—</dd></div></dl>
-          </article>
-          <article class="panel">
-            <div class="section-heading compact"><div><p class="eyebrow">Normalized activity</p><h2>Activity families</h2></div><p class="section-note">Per 100 turns</p></div>
-            <div id="project-activity" class="bar-list"></div>
-            <p id="project-activity-note" class="coverage-note"></p>
-          </article>
+        <section class="project-reading panel" aria-label="Project synthesis interpretation">
+          <div><p class="eyebrow">Current reading</p><h2 id="project-reading-title">—</h2></div>
+          <p id="project-reading-note">—</p>
+          <dl>
+            <div><dt>Admitted sources</dt><dd>1 of 3</dd></div>
+            <div><dt>Synthesis state</dt><dd id="project-synthesis-state">Single-source</dd></div>
+          </dl>
         </section>
+
+        <section class="panel source-index">
+          <div class="section-heading">
+            <div><p class="eyebrow">Recursive drilldown</p><h2>Choose an evidence board</h2></div>
+            <p class="section-note">Specificity increases from left to right</p>
+          </div>
+          <div class="source-card-grid">
+            <a id="open-t3code-board" class="source-card source-card-live" href="#">
+              <span class="source-index-number">03A</span><small>Admitted source</small><strong>T3Code</strong>
+              <p>Thread and turn lifecycle, activity families, recency, outcomes, and attribution coverage.</p>
+              <em>Open source board →</em>
+            </a>
+            <a id="open-git-board" class="source-card" href="#">
+              <span class="source-index-number">03B</span><small>Contract candidate</small><strong>Git</strong>
+              <p>Commit cadence, change classes, verification milestones, and release evidence.</p>
+              <em>Inspect proposed board →</em>
+            </a>
+            <a id="open-codex-board" class="source-card" href="#">
+              <span class="source-index-number">03C</span><small>Contract candidate</small><strong>.codex</strong>
+              <p>Goal transitions, orchestration outcomes, model classes, and semantic coverage.</p>
+              <em>Inspect proposed board →</em>
+            </a>
+            <a id="open-evidence-board" class="source-card source-card-exact" href="#">
+              <span class="source-index-number">04</span><small>Most specific</small><strong>Evidence ledger</strong>
+              <p>Exact admitted values, grain, time semantics, coverage, and interpretation limits.</p>
+              <em>Open evidence →</em>
+            </a>
+          </div>
+        </section>
+      </section>
+
+      <section id="view-source" class="view" hidden>
+        <button id="source-back-button" class="back-button" type="button">← Project synthesis</button>
+        <ol class="depth-map depth-map-compact" aria-label="Dashboard information hierarchy">
+          <li><span>01</span><strong>Atlas</strong></li>
+          <li><span>02</span><strong>Project</strong></li>
+          <li id="source-depth-item" class="active"><span>03</span><strong>Source board</strong></li>
+          <li id="evidence-depth-item"><span>04</span><strong>Evidence</strong></li>
+        </ol>
+
+        <header class="source-detail-heading">
+          <div>
+            <p id="source-kicker" class="eyebrow">Source board</p>
+            <h1 id="source-title">—</h1>
+          </div>
+          <div class="source-intro">
+            <span id="source-status" class="source-status">—</span>
+            <p id="source-description">—</p>
+          </div>
+        </header>
+
+        <nav id="source-board-nav" class="source-board-nav" aria-label="Project evidence boards">
+          <a id="tab-t3code" href="#">T3Code</a>
+          <a id="tab-git" href="#">Git</a>
+          <a id="tab-codex" href="#">.codex</a>
+          <a id="tab-evidence" href="#">Evidence</a>
+        </nav>
+
+        <div id="board-t3code" class="source-board">
+          <section class="metric-grid source-metrics" aria-label="T3Code source summary">
+            <article class="metric metric-primary"><p>Current threads</p><strong id="source-current-threads">—</strong><small>Projected work objects</small></article>
+            <article class="metric"><p>Active threads · 7d</p><strong id="source-active-threads">—</strong><small id="source-new-thread-context">— newly active</small></article>
+            <article class="metric"><p>Nonterminal turns</p><strong id="source-in-flight">—</strong><small>Current source state, not unfinished human work</small></article>
+            <article class="metric"><p>Turn attribution</p><strong id="source-attribution-rate">—</strong><small>Activity resolved to a projected turn</small></article>
+          </section>
+
+          <section class="detail-grid source-detail-grid">
+            <article class="panel">
+              <div class="section-heading compact"><div><p class="eyebrow">Current threads</p><h2>Recency distribution</h2></div></div>
+              <div id="thread-recency" class="bar-list"></div>
+            </article>
+            <article class="panel">
+              <div class="section-heading compact"><div><p class="eyebrow">Rolling seven days</p><h2>Terminal outcomes</h2></div></div>
+              <div id="project-outcome" class="outcome-stack"></div>
+              <dl class="source-facts outcome-facts"><div><dt>Completed</dt><dd id="project-completed">—</dd></div><div><dt>Error</dt><dd id="project-error">—</dd></div><div><dt>Interrupted</dt><dd id="project-interrupted">—</dd></div><div><dt>Nonterminal now</dt><dd id="project-in-flight">—</dd></div></dl>
+            </article>
+            <article class="panel">
+              <div class="section-heading compact"><div><p class="eyebrow">Normalized activity</p><h2>Activity families</h2></div><p class="section-note">Per 100 turns</p></div>
+              <div id="project-activity" class="bar-list"></div>
+              <p id="project-activity-note" class="coverage-note"></p>
+            </article>
+          </section>
+
+          <section class="panel source-contract-panel">
+            <div class="section-heading compact"><div><p class="eyebrow">Source contract</p><h2>What T3Code can support</h2></div></div>
+            <div class="contract-grid">
+              <article><span>Authority</span><strong>Lifecycle state</strong><p>Projects, threads, turns, status transitions, plans, and admitted activity families.</p></article>
+              <article><span>Blind spot</span><strong>Durable change</strong><p>No repository diff, review, check, release, or semantic objective disposition is inferred here.</p></article>
+              <article><span>Join rule</span><strong>No silent synthesis</strong><p>These facts remain T3Code evidence until another source contract is admitted.</p></article>
+            </div>
+          </section>
+        </div>
+
+        <div id="board-candidate" class="source-board" hidden>
+          <section class="candidate-banner">
+            <span id="candidate-mark">GIT</span>
+            <div><p class="eyebrow">Board contract only</p><h2 id="candidate-title">—</h2><p id="candidate-note">—</p></div>
+          </section>
+          <section id="candidate-components" class="component-catalog" aria-label="Proposed source components"></section>
+          <section class="panel boundary-panel">
+            <div><p class="eyebrow">Admission boundary</p><h2>No inferred values</h2></div>
+            <p id="candidate-boundary">—</p>
+          </section>
+        </div>
+
+        <div id="board-evidence" class="source-board" hidden>
+          <section class="panel evidence-panel">
+            <div class="section-heading">
+              <div><p class="eyebrow">Exact admitted facts</p><h2>Project evidence ledger</h2></div>
+              <p class="section-note">Values are source facts or deterministic derivations</p>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th scope="col">Fact</th><th scope="col">Value</th><th scope="col">Grain</th><th scope="col">Interpretation limit</th></tr></thead>
+                <tbody id="evidence-table"></tbody>
+              </table>
+            </div>
+          </section>
+          <section class="evidence-footnotes">
+            <article><span>Source</span><strong>T3Code projection</strong><p>Read-only coherent snapshot. Raw content and user topology are excluded.</p></article>
+            <article><span>Time</span><strong>Rolling seven days</strong><p>Compared with the immediately preceding equal window. The trace spans 42 UTC days.</p></article>
+            <article><span>Nulls</span><strong>Unknown stays unknown</strong><p>Missing and unmeasured values are not displayed as measured zeroes.</p></article>
+          </section>
+        </div>
       </section>
     </main>
 
