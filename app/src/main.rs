@@ -152,10 +152,14 @@ async fn refresh_once(config: &Config, state: &AppState) {
         }
         Ok(Err(cause)) => {
             state.status.failures.fetch_add(1, Ordering::Relaxed);
+            state.status.success.store(false, Ordering::Relaxed);
+            *state.dashboard.write().await = None;
             error!(error = %cause, "aggregate refresh failed");
         }
         Err(cause) => {
             state.status.failures.fetch_add(1, Ordering::Relaxed);
+            state.status.success.store(false, Ordering::Relaxed);
+            *state.dashboard.write().await = None;
             error!(error = %cause, "aggregate refresh task failed");
         }
     }
@@ -209,7 +213,7 @@ async fn health() -> StatusCode {
 }
 
 async fn ready(State(state): State<AppState>) -> StatusCode {
-    if state.dashboard.read().await.is_some() {
+    if state.dashboard.read().await.is_some() && state.status.success.load(Ordering::Relaxed) {
         StatusCode::OK
     } else {
         StatusCode::SERVICE_UNAVAILABLE

@@ -1,7 +1,7 @@
 schema_version: 1
 catalog_id: t3code-usage-metrics-v1
 status: candidate-contracts
-observed_at: 2026-08-20
+observed_at: 2026-08-21
 
 global_rules:
   default_time_zone: UTC
@@ -10,12 +10,15 @@ global_rules:
   human_identity: forbidden
   productivity_claims: forbidden
   raw_content: forbidden
-  current_periods: calendar-day-calendar-week-calendar-month
+  current_periods: rolling-seven-days-and-complete-utc-dates
+  comparison_periods: immediately-preceding-equal-rolling-window
   stable_keys: pseudonymous-and-rotatable
 
 dimensions:
   accepted:
     - calendar-date
+    - private-project-title
+    - pseudonymous-project-key
     - provider-family
     - model-family
     - runtime-mode
@@ -39,6 +42,43 @@ dimensions:
     - session-identifier
 
 buckets:
+  - id: project-portfolio
+    question: What projects form the current working set and how is work distributed among them
+    metrics:
+      - id: active-projects
+        grain: rolling-window
+        definition: distinct current projects linked to at least one requested turn in the window
+        source: projection-projects-plus-projection-threads-plus-projection-turns
+        status: published
+      - id: project-last-work-at
+        grain: project
+        definition: latest admitted turn lifecycle or thread activity time under the project
+        source: projection-threads-plus-projection-turns-plus-projection-activities
+        status: published
+        caveat: Row update time is not work time
+      - id: project-turn-share
+        grain: project-rolling-window
+        definition: project requested turns divided by all project-linked requested turns in the same window
+        source: projection-projects-plus-projection-threads-plus-projection-turns
+        status: published
+      - id: current-only-projects
+        grain: extraction-run
+        definition: projects active in the current rolling seven-day window and inactive in the preceding equal window
+        source: projection-projects-plus-projection-threads-plus-projection-turns
+        status: published
+        caveat: This is not a new-project measure
+      - id: cooling-projects
+        grain: extraction-run
+        definition: projects active in the preceding rolling seven-day window and inactive in the current equal window
+        source: projection-projects-plus-projection-threads-plus-projection-turns
+        status: published
+      - id: top-three-project-turn-share
+        grain: extraction-run
+        definition: requested turns from the three highest-volume projects divided by all project-linked requested turns in the current window
+        source: project-rollups
+        status: published
+        caveat: Concentration describes distribution and never value or productivity
+
   - id: adoption-and-reach
     question: Is T3Code being used repeatedly across time and surfaces
     metrics:
