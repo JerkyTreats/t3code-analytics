@@ -318,3 +318,5 @@ State: design complete, Lakebed feasibility experiment complete, homelab reconci
 ## Commit Effects
 
 If applied, this commit records the completed Lakebed experiment and homelab reconciliation, then adds the authorized Rust analytics service, embedded DuckDB aggregate store, privacy test, hardened container, and container publication workflow without changing T3Code or live infrastructure.
+
+If applied, the infrastructure commit pins the verified analytics image, mounts the T3Code source directory read only, provisions DuckDB storage and monitoring, adds Argo CD ownership, and publishes the internal HTTPS hostname through the shared certificate bundle.
