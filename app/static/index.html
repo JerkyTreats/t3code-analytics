@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <meta name="description" content="Private T3Code aggregate operations dashboard">
+    <title>T3Code Flight Recorder</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script type="module" src="/app.js"></script>
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <main class="shell">
+      <header class="masthead reveal">
+        <div>
+          <p class="eyebrow">Leviathan internal · Aggregate telemetry</p>
+          <h1>T3Code<br><em>flight recorder</em></h1>
+        </div>
+        <div class="status-rail">
+          <span class="pulse" aria-hidden="true"></span>
+          <div>
+            <strong id="status-label">Acquiring snapshot</strong>
+            <span id="snapshot-time">Awaiting source</span>
+          </div>
+        </div>
+      </header>
+
+      <section class="hero-grid reveal delay-one" aria-label="Usage summary">
+        <article class="metric metric-primary">
+          <span class="metric-index">01</span>
+          <p>Turns requested</p>
+          <strong id="turns-requested">—</strong>
+          <small id="active-days">Across — active days</small>
+        </article>
+        <article class="metric">
+          <span class="metric-index">02</span>
+          <p>Terminal completion</p>
+          <strong id="completion-rate">—</strong>
+          <small id="terminal-mix">— completed</small>
+        </article>
+        <article class="metric">
+          <span class="metric-index">03</span>
+          <p>Active work objects</p>
+          <strong id="active-threads">—</strong>
+          <small>Privacy-safe distinct threads</small>
+        </article>
+        <article class="metric metric-alert">
+          <span class="metric-index">04</span>
+          <p>Nonterminal now</p>
+          <strong id="in-flight">—</strong>
+          <small id="stale-in-flight">— older than six hours</small>
+        </article>
+      </section>
+
+      <section class="chart-panel reveal delay-two">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">42 day operating trace</p>
+            <h2>Work entering the system</h2>
+          </div>
+          <div class="legend" aria-label="Chart legend">
+            <span><i class="legend-turns"></i>Requested</span>
+            <span><i class="legend-tools"></i>Tool starts</span>
+          </div>
+        </div>
+        <div id="timeline" class="timeline" role="img" aria-label="Daily turns and tool activity"></div>
+        <div class="timeline-axis"><span id="range-start">—</span><span id="range-end">—</span></div>
+      </section>
+
+      <section class="lower-grid reveal delay-three">
+        <article class="activity-panel">
+          <div class="section-heading compact">
+            <div>
+              <p class="eyebrow">Last 30 days</p>
+              <h2>Activity strata</h2>
+            </div>
+          </div>
+          <div id="activity-list" class="activity-list"></div>
+        </article>
+
+        <article class="reliability-panel">
+          <p class="eyebrow">Terminal outcomes</p>
+          <h2>Signal integrity</h2>
+          <div class="outcome-ring" id="outcome-ring">
+            <div><strong id="completed-count">—</strong><span>complete</span></div>
+          </div>
+          <dl class="outcomes">
+            <div><dt>Error</dt><dd id="error-count">—</dd></div>
+            <div><dt>Interrupted</dt><dd id="interrupted-count">—</dd></div>
+            <div><dt>Projection lag</dt><dd id="projection-lag">—</dd></div>
+          </dl>
+        </article>
+
+        <article class="source-panel">
+          <p class="eyebrow">Extraction contract</p>
+          <h2>Source posture</h2>
+          <dl class="source-facts">
+            <div><dt>SQLite</dt><dd>Read only</dd></div>
+            <div><dt>Snapshot</dt><dd>Transactional</dd></div>
+            <div><dt>Store</dt><dd>DuckDB</dd></div>
+            <div><dt>Payloads</dt><dd>Excluded</dd></div>
+            <div><dt>Freshness</dt><dd id="source-freshness">—</dd></div>
+            <div><dt>Sequence</dt><dd id="source-sequence">—</dd></div>
+          </dl>
+        </article>
+      </section>
+
+      <footer>
+        <span>T3A · 001</span>
+        <p>Counts describe system activity. They do not measure people or productivity.</p>
+        <button id="refresh-button" type="button">Refresh view</button>
+      </footer>
+    </main>
+  </body>
+</html>

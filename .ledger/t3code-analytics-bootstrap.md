@@ -1,8 +1,8 @@
 # T3Code Analytics Bootstrap Ledger
 
 Date: 2026-08-20
-Mode: design
-Readiness: approval-ready
+Mode: design-with-completed-feasibility-and-hosting-assessment
+Readiness: build-ready
 
 ## Objective And Direct Product Proof
 
@@ -41,29 +41,27 @@ maturity:
     - one-hosted-consumer
     - existing-event-and-observability-contracts
     - no-proven-analytics-consumer-yet
-  user_override: none
-  direct_product_proof: reproducible-privacy-safe-baseline-export
+  user_override: yolo-rust-dashboard-duckdb-kubernetes-and-internal-hostname-authorized
+  direct_product_proof: internal-https-dashboard-serving-privacy-safe-live-aggregate-snapshot
   hard_limits:
-    new_crates: forbidden-without-approval
-    new_durable_stores: forbidden-without-approval
+    new_crates: one-rust-service-authorized
+    new_durable_stores: one-embedded-duckdb-store-authorized
     new_cross_domain_protocols: forbidden-without-approval
-    new_workspace_dependencies: forbidden-without-approval
+    new_workspace_dependencies: one-standalone-cargo-package-authorized
     parallel_implementors: one
     t3code_mutation: forbidden-without-separate-slice
     raw_content_export: forbidden
     live_database_writes: forbidden
-    dashboard_work: forbidden-before-data-proof
+    production_dashboard_work: forbidden-before-data-proof
   tripwires:
-    changed_files: 12
-    added_lines: 1800
-    note: provisional-and-not-yet-accepted
+    changed_files: 24
+    added_lines: 2500
+    note: accepted-by-yolo-override-for-active-slice
   investigation_budget:
     inspection_calls: 12
     source_files_beyond_named_design_and_policy: 20
   approval_gates:
-    - approve-first-extractor-slice
-    - approve-any-new-durable-store
-    - approve-recurring-scheduler
+    - active-slice-authorized
     - approve-t3code-instrumentation-change
     - approve-query-service-and-hostname
   review_budget:
@@ -111,9 +109,58 @@ The frozen set comes from [the data accessibility assessment](../assessment/2026
 
 ## Authorized Active Slice
 
-No implementation slice is authorized.
+Status: in progress
+
+Product increment: one Rust service reads the live T3Code SQLite source through an operating-system-enforced read-only Kubernetes mount, computes allowlisted aggregates inside one consistent SQLite read transaction, publishes the latest accepted snapshot into one embedded DuckDB file, and serves an internal dashboard over valid HTTPS.
+
+Owned analytics change scope:
+
+- one standalone Cargo package
+- one embedded dashboard and JSON API
+- one DuckDB schema for aggregate snapshots
+- one background refresh loop inside the service process
+- synthetic SQLite fixtures and Rust tests
+- one container build workflow
+
+Owned infrastructure change scope:
+
+- one dedicated namespace
+- one single-replica Deployment
+- one ClusterIP Service
+- one local-path PVC
+- one read-only hostPath source mount on the single Leviathan node
+- one ServiceMonitor
+- one Argo application
+- one internal `PublishedService`
+
+Direct acceptance evidence:
+
+- source volume is read only at the container boundary
+- SQLite opens with explicit read-only flags and query-only mode
+- no query selects content, payload, path, account, client, session, network, or credential fields
+- one transaction produces summary, daily, activity, and source-health facts
+- DuckDB contains only aggregate rows and reviewed snapshot JSON
+- synthetic fixture tests prove aggregation and exclusion behavior
+- the container runs as non-root with a read-only root filesystem
+- Argo reports the workload and internal-web applications healthy and synced
+- the requested hostname resolves through shared Caddy
+- the shared certificate covers the hostname and validates without an insecure curl flag
+- the dashboard and health endpoints return HTTP 200
+
+Stop conditions:
+
+- source access requires a write-capable mount or connection
+- any raw content or protected topology field reaches an artifact or response
+- source snapshot consistency cannot be held across the aggregate query set
+- more than one new service or durable store becomes necessary
+- the active slice crosses 24 changed files or 2500 added lines
+- a public route or T3Code runtime change becomes necessary
 
 The completed design slice created this repository, the source registry, metric catalog, platform research, domain assessment, and program ledger. It did not alter T3Code or create runtime infrastructure.
+
+The user separately authorized and completed a bounded local Lakebed feasibility experiment. That experiment created an isolated capsule with synthetic fixtures, one protected local loader endpoint, one reactive analytical query, a Preact client, and a coherent-reader stress check. It did not access T3Code source data, create a hosted deployment, or activate P1.
+
+The user then authorized a read-only Lakebed and homelab reconciliation. Delegated spikes inspected the published runtime, live cluster seams, and temporary proxy behavior. The assessment found that the cluster can host a conventional analytics app, while Lakebed `0.0.29` does not supply the durable self-host runtime, persistence, recovery, custom-origin, and operations contracts needed to run as a cluster-owned production service. No infrastructure or hosted state changed.
 
 ## Proposed First Slice
 
@@ -165,23 +212,28 @@ Stop conditions:
 
 | Phase | Increment | Status | Dependency | Activation evidence |
 | --- | --- | --- | --- | --- |
-| P1 | Privacy-safe snapshot extractor and baseline facts | awaiting approval | Accepted envelope | User approval of exact slice |
+| P0 | Lakebed last-mile feasibility with synthetic snapshots | complete | Reviewed privacy boundary | User authorization on 2026-08-20 |
+| P0R | Lakebed hosting and homelab reconciliation | complete | P0 capsule and read-only cluster access | User authorization on 2026-08-20 |
+| P1 | Privacy-safe Rust snapshot service and baseline dashboard | in progress | Accepted envelope | User YOLO authorization on 2026-08-20 |
 | P2 | Versioned analytical models and metric views | backlog | P1 complete | Reconciled facts and settled token semantics |
 | P3 | Recurring extraction, retention, and freshness monitoring | backlog | P2 complete | Repeated manual runs and real freshness need |
-| P4 | Query-serving boundary and internal authentication | backlog | P3 complete | Accepted consumers and concurrency requirement |
-| P5 | Internal dashboard and hostname | backlog | P4 complete | Accepted view contracts and presentation requirements |
+| P4 | Query-serving boundary and internal authentication | partially activated by YOLO slice | P1 aggregate contract | Internal service authorization |
+| P5 | Internal dashboard and hostname | partially activated by YOLO slice | P1 aggregate contract | Internal hostname authorization |
 
 ## Architectural Expansion Decisions
 
 | Proposal | Product behavior unblocked | Existing approach considered | Current consumers | Authority | Disposition |
 | --- | --- | --- | --- | --- | --- |
-| DuckDB process dependency | Snapshot transformation and local SQL proof | SQLite CLI plus shell SQL | None | Needs P1 approval | provisional |
-| Parquet analytical artifacts | Portable conformed facts | DuckDB-only file | None | Needs P1 approval | provisional |
+| DuckDB process dependency | Durable aggregate snapshots and analytical SQL | In-memory snapshot only | Internal dashboard | User-authorized P1 | accepted |
+| Parquet analytical artifacts | Portable conformed facts | DuckDB-only file | None | Not required for direct proof | deferred |
 | Dedicated analytical store | Concurrent historical queries | Parquet and local DuckDB | None | Not authorized | deferred |
-| Scheduler | Automatic freshness | Manual bounded run | None | Not authorized | deferred |
+| Scheduler | Automatic freshness | In-process refresh loop | Internal dashboard | User-authorized P1 | accepted-inside-service |
 | T3Code analytics events | Missing client or semantic events | Existing orchestration and telemetry | None | Not authorized | deferred |
-| Query service | Multi-user internal access | Local SQL artifacts | None | Not authorized | deferred |
-| Internal hostname | Browser access to accepted views | Local report | None | Not authorized | deferred |
+| Query service | Multi-user internal access | Static local report | Internal dashboard | User-authorized P1 | accepted |
+| Internal hostname | Browser access to accepted views | Local report | Internal dashboard | User-authorized P1 | accepted |
+| Lakebed feasibility capsule | Atomic materialized snapshot publication and reactive presentation | Static report only | Experiment owner | User-authorized P0 | passed-locally |
+| Lakebed self-hosting | Durable cluster-owned Lakebed runtime | Lakebed hosted plane or conventional internal app | None | Read-only assessment only | blocked-by-runtime-contract |
+| Internal analytics hostname | Browser access to a stable backend | No route until a durable backend exists | None | Not authorized | correctly-absent |
 
 ## Review State
 
@@ -206,10 +258,20 @@ Verification evidence:
 - publication scan found no local paths, private hostnames, credentials, account values, or raw identifiers
 - Markdown parentheses appear only in link syntax
 - the published history contains only reviewed static design artifacts
+- the Lakebed capsule builds as an anonymous source artifact
+- missing write keys return HTTP 403 and unknown fixtures return HTTP 400
+- a failed multi-write publication leaves no partial snapshot
+- 80 reads overlapping 24 publications returned only complete synthetic snapshots
+- the final local database had exactly one current snapshot and no failed indexes
+- a temporary root-host proxy passed HTTP, protected publication, and reactive WebSocket transport
+- process restart erased local Lakebed state and two replicas diverged
+- development inspection and export surfaces were reachable without an inspection token
+- all temporary proxy and Lakebed processes and files were removed
+- live cluster inspection found healthy reusable publication seams and no target hostname state
 
 ## Complexity Delta
 
-Current design slice:
+Current design and reconciliation slice:
 
 - new repository: 1
 - runtime files changed: 0
@@ -220,6 +282,20 @@ Current design slice:
 - background runtimes added: 0
 - direct product behavior proved: none
 - design behavior proved: current source shape and program boundary documented
+- hosting behavior proved: cluster publication seam ready, Lakebed self-host runtime absent
+- live infrastructure writes: 0
+- external Lakebed resources created: 0
+
+Completed Lakebed feasibility experiment:
+
+- T3Code files changed: 0
+- live source reads: 0
+- synthetic schema tables: 2
+- local experiment endpoints: 2
+- hosted services added: 0
+- deployments created: 0
+- direct behavior proved: coherent atomic publication and reactive query contract
+- production platform decision: not made
 
 ## Risks And Exceptions
 
@@ -237,4 +313,10 @@ Before P1 starts, the user must accept the provisional tripwires and decide whet
 
 ## Final Reconciliation
 
-State: design complete and implementation not started.
+State: design complete, Lakebed feasibility experiment complete, homelab reconciliation complete, and P1 implementation in progress with local plus container proof complete and Kubernetes deployment pending.
+
+## Commit Effects
+
+If applied, this commit records the completed Lakebed experiment and homelab reconciliation, then adds the authorized Rust analytics service, embedded DuckDB aggregate store, privacy test, hardened container, and container publication workflow without changing T3Code or live infrastructure.
+
+If applied, the infrastructure commit pins the verified analytics image, mounts the T3Code source directory read only, provisions DuckDB storage and monitoring, adds Argo CD ownership, and publishes the internal HTTPS hostname through the shared certificate bundle.
