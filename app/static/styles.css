@@ -257,9 +257,6 @@ summary:focus-visible,
   border-bottom: 1px solid var(--line);
 }
 
-.atlas-intro { padding-bottom: 34px; }
-.atlas-intro h1 { font-size: clamp(42px, 4.7vw, 72px); }
-
 .kicker {
   margin: 0 0 12px;
   color: var(--cobalt);
@@ -327,7 +324,7 @@ h3 { margin-bottom: 0; font: 650 18px/1.25 var(--body); }
 .atlas-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.65fr) minmax(285px, 0.65fr);
-  margin-top: 28px;
+  margin-top: 0;
 }
 
 .panel {
