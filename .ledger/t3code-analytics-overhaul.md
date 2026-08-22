@@ -7,7 +7,7 @@
 - Maturity posture: first-slice
 - Obligation floor: operational-privacy
 - Confidence: high
-- Status: active
+- Status: complete
 - Review owner: root
 - Started: 2026-08-22
 
@@ -101,3 +101,18 @@ Keep the Rust extractor, aggregate model, read-only source access, DuckDB projec
 The collaborative preview screenshot operation failed at the browser service boundary on both local tabs. DOM, route, layout, accessibility, and overflow evidence remained available through the same collaborative browser and was used for acceptance. No screenshot artifact is claimed for this gate.
 
 Candidate product files stayed within the tripwire at five modified product or documentation files and roughly fourteen hundred added lines. Promotion is authorized.
+
+## Promotion record
+
+- Accepted product commit: `1d0ebd993f3c4dcbfb42dc68b8f34a22e31e0b84`
+- Container workflow: `32576636005` · success
+- Published image: `ghcr.io/jerkytreats/t3code-analytics@sha256:0144cf35b1c216d83a69bf7b33f1b677b49cf552b2ffb3f808af0fabb7ed1b5a`
+- GitOps commit: `92933d0cbff8aba10908258b9ca27eb260270e64`
+- Argo state: synced and healthy
+- Runtime state: one of one replicas available with zero container restarts
+- Hosted contract: version two, projection lag zero, twenty-five admitted projects, and forty-two daily observations
+- Hosted route proof: atlas, five domains, project detail, and fourteen-row project evidence ledger all rendered with zero page-level horizontal overflow
+
+## Closeout
+
+The direct product proof is satisfied. The hosted entry page now synthesizes all supported analytical domains, every elevated fact has a denser drill path, project navigation retains the originating domain in the URL, and exact evidence remains one additional layer down. Unsupported capacity, cost, delivery, and code-operation domains remain explicitly deferred pending accepted source contracts.
