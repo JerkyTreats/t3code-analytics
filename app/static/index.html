@@ -3,310 +3,136 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="color-scheme" content="dark">
-    <meta name="description" content="Private T3Code project usage analytics">
-    <title>T3Code Work Atlas</title>
-    <link rel="stylesheet" href="/styles.css">
-    <script type="module" src="/app.js"></script>
+    <meta name="color-scheme" content="light">
+    <meta name="description" content="Private T3Code work analytics">
+    <title>T3Code Field Atlas</title>
+    <link rel="stylesheet" href="/styles.css?v=field-atlas-1">
+    <script type="module" src="/app.js?v=field-atlas-1"></script>
   </head>
   <body>
-    <div class="grain" aria-hidden="true"></div>
-    <header class="app-bar">
-      <a class="brand" href="#overview" aria-label="T3Code Work Atlas home">
-        <span class="brand-mark">T3</span>
-        <span><strong>Work Atlas</strong><small>Usage analytics</small></span>
+    <a class="skip-link" href="#content">Skip to analysis</a>
+    <header class="masthead">
+      <a class="brand" href="#atlas" aria-label="T3Code Field Atlas home">
+        <span class="brand-stamp">T3</span>
+        <span class="brand-copy"><strong>Field Atlas</strong><small>Work moving through T3Code</small></span>
       </a>
-      <nav id="view-nav" class="view-nav" aria-label="Current dashboard hierarchy">
-        <a href="#overview" class="active">Atlas</a>
-        <a id="nav-project" href="#overview" aria-disabled="true">Project</a>
-        <a id="nav-source" href="#overview" aria-disabled="true">Source</a>
-        <a id="nav-evidence" href="#overview" aria-disabled="true">Evidence</a>
-      </nav>
-      <div class="status-rail" aria-live="polite">
-        <span class="pulse" aria-hidden="true"></span>
-        <div><strong id="status-label">Acquiring snapshot</strong><span id="snapshot-time">Awaiting source</span></div>
-        <button id="refresh-button" type="button">Refresh</button>
+      <div class="snapshot-state" aria-live="polite">
+        <span id="status-dot" class="status-dot" aria-hidden="true"></span>
+        <span><strong id="status-label">Acquiring snapshot</strong><small id="snapshot-time">Awaiting source</small></span>
       </div>
+      <button id="refresh-button" class="quiet-button" type="button">Refresh data</button>
     </header>
 
-    <main class="shell">
-      <section id="view-overview" class="view reveal">
-        <header class="page-heading">
-          <div>
-            <p class="eyebrow">Portfolio · rolling seven days</p>
-            <h1>What is moving<br><em>through T3Code</em></h1>
-          </div>
-          <p class="lede">A project-first view of current work distribution, recency, and agent activity. Counts describe system behavior, never people or productivity.</p>
-        </header>
-
-        <ol class="depth-map" aria-label="Dashboard information hierarchy">
-          <li class="active"><span>01</span><strong>Atlas</strong><small>Highest useful abstraction</small></li>
-          <li><span>02</span><strong>Project</strong><small>One work context</small></li>
-          <li><span>03</span><strong>Source board</strong><small>One evidence system</small></li>
-          <li><span>04</span><strong>Evidence</strong><small>Verbose admitted facts</small></li>
-        </ol>
-
-        <section class="signal-deck" aria-label="Elevated portfolio signals">
-          <article class="signal-card signal-card-primary">
-            <span>Portfolio shape</span>
-            <strong id="portfolio-shape">—</strong>
-            <p id="portfolio-shape-note">Derived from current work distribution.</p>
-          </article>
-          <article class="signal-card">
-            <span>Project movement</span>
-            <strong id="portfolio-movement">—</strong>
-            <p id="portfolio-movement-note">Compares projects entering and leaving the current window.</p>
-          </article>
-          <article class="signal-card">
-            <span>Evidence readiness</span>
-            <strong id="portfolio-evidence">—</strong>
-            <p id="portfolio-evidence-note">Share of activity resolved to a projected turn.</p>
-          </article>
-        </section>
-
-        <section class="metric-grid" aria-label="Current portfolio summary">
-          <article class="metric metric-primary">
-            <p>Active projects</p>
-            <strong id="active-projects">—</strong>
-            <small id="active-projects-context">— of — current</small>
-          </article>
-          <article class="metric">
-            <p>Turns requested</p>
-            <strong id="turns-requested">—</strong>
-            <small id="turns-delta">Compared with preceding seven days</small>
-          </article>
-          <article class="metric">
-            <p>Active threads</p>
-            <strong id="active-threads">—</strong>
-            <small>Distinct threads with a requested turn</small>
-          </article>
-          <article class="metric">
-            <p>Request cohort completion</p>
-            <strong id="completion-rate">—</strong>
-            <small id="terminal-denominator">— terminal turns</small>
-          </article>
-        </section>
-
-        <section class="focus-grid">
-          <article class="panel trend-panel">
-            <div class="section-heading">
-              <div><p class="eyebrow">42 day composition</p><h2>Work distribution over time</h2></div>
-              <div id="project-legend" class="legend" aria-label="Project chart legend"></div>
-            </div>
-            <div id="portfolio-chart" class="chart" role="group" aria-label="Daily requested turns by project"></div>
-            <div class="chart-axis"><span id="range-start">—</span><span>Daily requested turns</span><span id="range-end">—</span></div>
-            <details id="portfolio-chart-data" class="chart-data"><summary>View chart data</summary><div class="table-wrap"></div></details>
-          </article>
-
-          <aside class="panel shift-panel">
-            <div class="section-heading compact"><div><p class="eyebrow">Window movement</p><h2>Portfolio shifts</h2></div></div>
-            <dl class="shift-list">
-              <div><dt>Current only</dt><dd id="current-only-projects">—</dd><small>Active now, quiet in the prior window</small></div>
-              <div><dt>Cooling</dt><dd id="cooling-projects">—</dd><small>Active in the prior window, quiet now</small></div>
-              <div><dt>Top three share</dt><dd id="top-three-share">—</dd><small>Share of all current-window turns</small></div>
-              <div><dt>Dormant beyond 30d</dt><dd id="dormant-projects">—</dd><small>Current projects without recent work</small></div>
-            </dl>
-          </aside>
-        </section>
-
-        <section class="panel project-panel">
-          <div class="section-heading project-heading">
-            <div><p class="eyebrow">Project navigator</p><h2>Current portfolio</h2></div>
-            <div class="table-controls">
-              <label><span>Find project</span><input id="project-search" type="search" placeholder="Search titles" autocomplete="off"></label>
-              <label><span>Recency</span><select id="recency-filter"><option value="all">All recency</option><option value="within-24h">Within 24 hours</option><option value="two-to-seven-days">Two to seven days</option><option value="eight-to-thirty-days">Eight to thirty days</option><option value="beyond-30d">Beyond thirty days</option><option value="unknown">Unknown</option><option value="invalid">Invalid timestamp</option></select></label>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th scope="col">Project</th><th scope="col">Last work</th><th scope="col" class="numeric">Turns · 7d</th><th scope="col" class="numeric">Share</th><th scope="col" class="numeric">vs prior</th><th scope="col" class="numeric">Active threads</th><th scope="col">Current signals</th></tr></thead>
-              <tbody id="project-table"></tbody>
-            </table>
-          </div>
-          <p id="project-empty" class="empty" hidden>No projects match this view.</p>
-        </section>
-
-        <section class="lower-grid">
-          <article class="panel activity-panel">
-            <div class="section-heading compact"><div><p class="eyebrow">Rolling seven days</p><h2>Activity rate</h2></div><p class="section-note">Occurrences per 100 turns</p></div>
-            <div id="activity-list" class="bar-list"></div>
-          </article>
-          <article class="panel quality-panel">
-            <div class="section-heading compact"><div><p class="eyebrow">Attribution coverage</p><h2>What the hierarchy knows</h2></div></div>
-            <div id="coverage-bar" class="coverage-bar" aria-label="Activity attribution coverage"></div>
-            <dl class="source-facts">
-              <div><dt>Turn attributed</dt><dd id="coverage-attributed">—</dd></div>
-              <div><dt>Thread level</dt><dd id="coverage-thread">—</dd></div>
-              <div><dt>Unresolved turn</dt><dd id="coverage-unresolved">—</dd></div>
-              <div><dt>Projection lag</dt><dd id="projection-lag">—</dd></div>
-              <div><dt>Source freshness</dt><dd id="source-freshness">—</dd></div>
-            </dl>
-          </article>
-        </section>
-      </section>
-
-      <section id="view-project" class="view" hidden>
-        <button id="back-button" class="back-button" type="button">← Portfolio</button>
-        <ol class="depth-map depth-map-compact" aria-label="Dashboard information hierarchy">
-          <li><span>01</span><strong>Atlas</strong></li>
-          <li class="active"><span>02</span><strong>Project</strong></li>
-          <li><span>03</span><strong>Source board</strong></li>
-          <li><span>04</span><strong>Evidence</strong></li>
-        </ol>
-        <header class="project-detail-heading">
-          <div><p class="eyebrow">Project synthesis · rolling seven days</p><h1 id="project-title">—</h1></div>
-          <div class="project-recency"><span>Last admitted work</span><strong id="project-last-work">—</strong><small id="project-recency-band">—</small></div>
-        </header>
-
-        <section class="metric-grid project-metrics" aria-label="Project summary">
-          <article class="metric metric-primary"><p>Turns requested</p><strong id="project-turns">—</strong><small id="project-turns-delta">—</small></article>
-          <article class="metric"><p>Active threads</p><strong id="project-active-threads">—</strong><small id="project-thread-context">— current threads</small></article>
-          <article class="metric"><p>Portfolio share</p><strong id="project-share">—</strong><small id="project-share-denominator">Of — project-linked turns</small></article>
-          <article class="metric"><p>Request cohort completion</p><strong id="project-completion">—</strong><small id="project-terminal-denominator">— terminal turns</small></article>
-        </section>
-
-        <section class="panel project-trend-panel">
-          <div class="section-heading"><div><p class="eyebrow">42 day trace</p><h2>Project work entering T3Code</h2></div><div class="legend"><span><i class="swatch project-line"></i>Requested turns</span></div></div>
-          <div id="project-chart" class="chart project-chart" role="group" aria-label="Daily project requested turns"></div>
-          <div class="chart-axis"><span id="project-range-start">—</span><span>Solid line · observed values</span><span id="project-range-end">—</span></div>
-          <details id="project-chart-data" class="chart-data"><summary>View chart data</summary><div class="table-wrap"></div></details>
-        </section>
-
-        <section class="project-reading panel" aria-label="Project synthesis interpretation">
-          <div><p class="eyebrow">Current reading</p><h2 id="project-reading-title">—</h2></div>
-          <p id="project-reading-note">—</p>
-          <dl>
-            <div><dt>Admitted sources</dt><dd>1 of 3</dd></div>
-            <div><dt>Synthesis state</dt><dd id="project-synthesis-state">Single-source</dd></div>
-          </dl>
-        </section>
-
-        <section class="panel source-index">
-          <div class="section-heading">
-            <div><p class="eyebrow">Recursive drilldown</p><h2>Choose an evidence board</h2></div>
-            <p class="section-note">Specificity increases from left to right</p>
-          </div>
-          <div class="source-card-grid">
-            <a id="open-t3code-board" class="source-card source-card-live" href="#">
-              <span class="source-index-number">03A</span><small>Admitted source</small><strong>T3Code</strong>
-              <p>Thread and turn lifecycle, activity families, recency, outcomes, and attribution coverage.</p>
-              <em>Open source board →</em>
-            </a>
-            <a id="open-git-board" class="source-card" href="#">
-              <span class="source-index-number">03B</span><small>Contract candidate</small><strong>Git</strong>
-              <p>Commit cadence, change classes, verification milestones, and release evidence.</p>
-              <em>Inspect proposed board →</em>
-            </a>
-            <a id="open-codex-board" class="source-card" href="#">
-              <span class="source-index-number">03C</span><small>Contract candidate</small><strong>.codex</strong>
-              <p>Goal transitions, orchestration outcomes, model classes, and semantic coverage.</p>
-              <em>Inspect proposed board →</em>
-            </a>
-            <a id="open-evidence-board" class="source-card source-card-exact" href="#">
-              <span class="source-index-number">04</span><small>Most specific</small><strong>Evidence ledger</strong>
-              <p>Exact admitted values, grain, time semantics, coverage, and interpretation limits.</p>
-              <em>Open evidence →</em>
-            </a>
-          </div>
-        </section>
-      </section>
-
-      <section id="view-source" class="view" hidden>
-        <button id="source-back-button" class="back-button" type="button">← Project synthesis</button>
-        <ol class="depth-map depth-map-compact" aria-label="Dashboard information hierarchy">
-          <li><span>01</span><strong>Atlas</strong></li>
-          <li><span>02</span><strong>Project</strong></li>
-          <li id="source-depth-item" class="active"><span>03</span><strong>Source board</strong></li>
-          <li id="evidence-depth-item"><span>04</span><strong>Evidence</strong></li>
-        </ol>
-
-        <header class="source-detail-heading">
-          <div>
-            <p id="source-kicker" class="eyebrow">Source board</p>
-            <h1 id="source-title">—</h1>
-          </div>
-          <div class="source-intro">
-            <span id="source-status" class="source-status">—</span>
-            <p id="source-description">—</p>
-          </div>
-        </header>
-
-        <nav id="source-board-nav" class="source-board-nav" aria-label="Project evidence boards">
-          <a id="tab-t3code" href="#">T3Code</a>
-          <a id="tab-git" href="#">Git</a>
-          <a id="tab-codex" href="#">.codex</a>
-          <a id="tab-evidence" href="#">Evidence</a>
+    <div class="app-shell">
+      <aside class="analysis-rail" aria-label="Analysis domains">
+        <div class="rail-heading"><span>Analysis index</span><small>Seven-day reading</small></div>
+        <nav id="domain-nav" class="domain-nav">
+          <a href="#atlas" data-nav="atlas"><span>00</span><strong>Atlas</strong><small>Orientation</small></a>
+          <a href="#domain/portfolio" data-nav="portfolio"><span>01</span><strong>Portfolio</strong><small>Reach and distribution</small></a>
+          <a href="#domain/flow" data-nav="flow"><span>02</span><strong>Flow</strong><small>Requests over time</small></a>
+          <a href="#domain/reliability" data-nav="reliability"><span>03</span><strong>Reliability</strong><small>Request outcomes</small></a>
+          <a href="#domain/activity" data-nav="activity"><span>04</span><strong>Activity</strong><small>Agent operations</small></a>
+          <a href="#domain/evidence" data-nav="evidence"><span>05</span><strong>Evidence</strong><small>Coverage and limits</small></a>
         </nav>
-
-        <div id="board-t3code" class="source-board">
-          <section class="metric-grid source-metrics" aria-label="T3Code source summary">
-            <article class="metric metric-primary"><p>Current threads</p><strong id="source-current-threads">—</strong><small>Projected work objects</small></article>
-            <article class="metric"><p>Active threads · 7d</p><strong id="source-active-threads">—</strong><small id="source-new-thread-context">— newly active</small></article>
-            <article class="metric"><p>Nonterminal turns</p><strong id="source-in-flight">—</strong><small>Current source state, not unfinished human work</small></article>
-            <article class="metric"><p>Turn attribution</p><strong id="source-attribution-rate">—</strong><small>Activity resolved to a projected turn</small></article>
-          </section>
-
-          <section class="detail-grid source-detail-grid">
-            <article class="panel">
-              <div class="section-heading compact"><div><p class="eyebrow">Current threads</p><h2>Recency distribution</h2></div></div>
-              <div id="thread-recency" class="bar-list"></div>
-            </article>
-            <article class="panel">
-              <div class="section-heading compact"><div><p class="eyebrow">Rolling seven days</p><h2>Terminal outcomes</h2></div></div>
-              <div id="project-outcome" class="outcome-stack"></div>
-              <dl class="source-facts outcome-facts"><div><dt>Completed</dt><dd id="project-completed">—</dd></div><div><dt>Error</dt><dd id="project-error">—</dd></div><div><dt>Interrupted</dt><dd id="project-interrupted">—</dd></div><div><dt>Nonterminal now</dt><dd id="project-in-flight">—</dd></div></dl>
-            </article>
-            <article class="panel">
-              <div class="section-heading compact"><div><p class="eyebrow">Normalized activity</p><h2>Activity families</h2></div><p class="section-note">Per 100 turns</p></div>
-              <div id="project-activity" class="bar-list"></div>
-              <p id="project-activity-note" class="coverage-note"></p>
-            </article>
-          </section>
-
-          <section class="panel source-contract-panel">
-            <div class="section-heading compact"><div><p class="eyebrow">Source contract</p><h2>What T3Code can support</h2></div></div>
-            <div class="contract-grid">
-              <article><span>Authority</span><strong>Lifecycle state</strong><p>Projects, threads, turns, status transitions, plans, and admitted activity families.</p></article>
-              <article><span>Blind spot</span><strong>Durable change</strong><p>No repository diff, review, check, release, or semantic objective disposition is inferred here.</p></article>
-              <article><span>Join rule</span><strong>No silent synthesis</strong><p>These facts remain T3Code evidence until another source contract is admitted.</p></article>
-            </div>
-          </section>
+        <div class="rail-boundary">
+          <span>Interpretation boundary</span>
+          <p>System activity is not a measure of people or productivity.</p>
         </div>
+      </aside>
 
-        <div id="board-candidate" class="source-board" hidden>
-          <section class="candidate-banner">
-            <span id="candidate-mark">GIT</span>
-            <div><p class="eyebrow">Board contract only</p><h2 id="candidate-title">—</h2><p id="candidate-note">—</p></div>
-          </section>
-          <section id="candidate-components" class="component-catalog" aria-label="Proposed source components"></section>
-          <section class="panel boundary-panel">
-            <div><p class="eyebrow">Admission boundary</p><h2>No inferred values</h2></div>
-            <p id="candidate-boundary">—</p>
-          </section>
-        </div>
-
-        <div id="board-evidence" class="source-board" hidden>
-          <section class="panel evidence-panel">
-            <div class="section-heading">
-              <div><p class="eyebrow">Exact admitted facts</p><h2>Project evidence ledger</h2></div>
-              <p class="section-note">Values are source facts or deterministic derivations</p>
+      <main id="content" class="content" tabindex="-1">
+        <section id="view-atlas" class="view" hidden>
+          <header class="page-intro atlas-intro">
+            <div>
+              <p class="kicker">Portfolio atlas · rolling seven days</p>
+              <h1>Where is work moving, and what needs a closer look?</h1>
             </div>
-            <div class="table-wrap">
-              <table>
-                <thead><tr><th scope="col">Fact</th><th scope="col">Value</th><th scope="col">Grain</th><th scope="col">Interpretation limit</th></tr></thead>
-                <tbody id="evidence-table"></tbody>
-              </table>
-            </div>
-          </section>
-          <section class="evidence-footnotes">
-            <article><span>Source</span><strong>T3Code projection</strong><p>Read-only coherent snapshot. Raw content and user topology are excluded.</p></article>
-            <article><span>Time</span><strong>Rolling seven days</strong><p>Compared with the immediately preceding equal window. The trace spans 42 UTC days.</p></article>
-            <article><span>Nulls</span><strong>Unknown stays unknown</strong><p>Missing and unmeasured values are not displayed as measured zeroes.</p></article>
-          </section>
-        </div>
-      </section>
-    </main>
+            <p class="intro-note">A high-signal entry into reach, flow, reliability, activity, and evidence quality. Every reading opens into its underlying view.</p>
+          </header>
 
-    <footer class="site-footer"><span>T3A · 002</span><p>Read-only source · coherent snapshots · private internal route</p><span id="source-sequence">Sequence —</span></footer>
+          <section class="briefing-strip" aria-label="Current portfolio briefing">
+            <a class="briefing-cell briefing-lead" href="#domain/portfolio">
+              <span>Active reach</span><strong id="atlas-active-projects">—</strong><small id="atlas-active-context">—</small><em>Open portfolio →</em>
+            </a>
+            <a class="briefing-cell" href="#domain/flow">
+              <span>Requested turns</span><strong id="atlas-turns">—</strong><small id="atlas-turns-context">—</small><em>Inspect flow →</em>
+            </a>
+            <a class="briefing-cell" href="#domain/reliability">
+              <span>Terminal completion</span><strong id="atlas-completion">—</strong><small id="atlas-completion-context">—</small><em>Inspect outcomes →</em>
+            </a>
+            <a class="briefing-cell" href="#domain/evidence">
+              <span>Turn attribution</span><strong id="atlas-attribution">—</strong><small id="atlas-attribution-context">—</small><em>Inspect evidence →</em>
+            </a>
+          </section>
+
+          <section class="atlas-grid">
+            <article class="panel atlas-trend">
+              <div class="panel-heading">
+                <div><p class="kicker">Forty-two day trace</p><h2>Request flow</h2></div>
+                <a href="#domain/flow">Deeper analysis →</a>
+              </div>
+              <div id="atlas-chart" class="chart chart-large" role="img" aria-label="Daily requested turns across the portfolio"></div>
+              <div class="chart-footer"><span id="atlas-range-start">—</span><strong id="atlas-chart-peak">—</strong><span id="atlas-range-end">—</span></div>
+              <details id="atlas-chart-data" class="data-disclosure"><summary>View accessible chart data</summary><div class="table-scroll"></div></details>
+            </article>
+
+            <article class="panel attention-panel">
+              <div class="panel-heading"><div><p class="kicker">Factual watchlist</p><h2>Needs attention</h2></div></div>
+              <div id="attention-list" class="attention-list"></div>
+              <p class="panel-footnote">Rows are direct observations, not severity scores.</p>
+            </article>
+          </section>
+
+          <section class="domain-card-grid" aria-label="Analytical domains">
+            <a class="domain-card cobalt" href="#domain/portfolio">
+              <span class="domain-number">01</span><p>Portfolio</p><h2>Reach and distribution</h2><div id="atlas-portfolio-facts" class="domain-facts"></div><em>Open domain →</em>
+            </a>
+            <a class="domain-card vermilion" href="#domain/flow">
+              <span class="domain-number">02</span><p>Flow</p><h2>Requests over time</h2><div id="atlas-flow-facts" class="domain-facts"></div><em>Open domain →</em>
+            </a>
+            <a class="domain-card ink" href="#domain/reliability">
+              <span class="domain-number">03</span><p>Reliability</p><h2>Outcomes and exceptions</h2><div id="atlas-reliability-facts" class="domain-facts"></div><em>Open domain →</em>
+            </a>
+            <a class="domain-card moss" href="#domain/activity">
+              <span class="domain-number">04</span><p>Activity</p><h2>Agent operations</h2><div id="atlas-activity-facts" class="domain-facts"></div><em>Open domain →</em>
+            </a>
+            <a class="domain-card ochre" href="#domain/evidence">
+              <span class="domain-number">05</span><p>Evidence</p><h2>Coverage and limits</h2><div id="atlas-evidence-facts" class="domain-facts"></div><em>Open domain →</em>
+            </a>
+          </section>
+        </section>
+
+        <section id="view-domain" class="view" hidden>
+          <nav class="crumbs" aria-label="Breadcrumb"><a href="#atlas">Atlas</a><span>→</span><strong id="domain-crumb">Domain</strong></nav>
+          <header class="page-intro domain-intro">
+            <div><p id="domain-kicker" class="kicker">Domain analysis</p><h1 id="domain-title">—</h1></div>
+            <p id="domain-description" class="intro-note">—</p>
+          </header>
+          <div id="domain-content"></div>
+        </section>
+
+        <section id="view-project" class="view" hidden>
+          <nav class="crumbs" aria-label="Breadcrumb"><a href="#atlas">Atlas</a><span>→</span><a id="project-domain-return" href="#domain/portfolio">Portfolio</a><span>→</span><strong id="project-crumb">Project</strong></nav>
+          <header class="page-intro project-intro">
+            <div><p class="kicker">Project reading · rolling seven days</p><h1 id="project-title">—</h1></div>
+            <div class="recency-note"><span>Last admitted work</span><strong id="project-last-work">—</strong><small id="project-recency-band">—</small></div>
+          </header>
+          <div id="project-content"></div>
+        </section>
+
+        <section id="view-evidence" class="view" hidden>
+          <nav class="crumbs" aria-label="Breadcrumb"><a href="#atlas">Atlas</a><span>→</span><a id="evidence-project-return" href="#domain/portfolio">Project</a><span>→</span><strong>Evidence</strong></nav>
+          <header class="page-intro evidence-intro">
+            <div><p class="kicker">Claim ledger · exact admitted facts</p><h1 id="evidence-title">—</h1></div>
+            <p class="intro-note">The deepest layer shows values, grain, denominators, and interpretation limits without adding a narrative score.</p>
+          </header>
+          <div id="evidence-content"></div>
+        </section>
+
+        <section id="view-error" class="view" hidden>
+          <div class="error-state"><p class="kicker">No analytical view</p><h1 id="error-title">That route is not available.</h1><p id="error-note">Return to the atlas to choose an admitted view.</p><a class="primary-action" href="#atlas">Return to atlas</a></div>
+        </section>
+      </main>
+    </div>
   </body>
 </html>

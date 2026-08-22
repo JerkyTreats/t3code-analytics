@@ -10,7 +10,7 @@ T3Code already has a valuable analytical spine. Its hosted instance retains an a
 
 The first data implementation is now a bounded Rust service that opens T3Code SQLite through a read-only mount, holds one consistent read transaction, admits only allowlisted aggregate fields, and publishes accepted snapshots into embedded DuckDB. Axum serves the aggregate API and internal dashboard from the same process. Parquet remains a later portability option. OpenTelemetry and Prometheus remain the operational telemetry direction. Lakebed informed the interaction contract but is no longer on the production path.
 
-The current presentation experiment applies that same discipline recursively. The atlas elevates portfolio signals, project pages provide single-context synthesis, source boards preserve source-specific detail, and the evidence ledger exposes the exact admitted facts and interpretation limits. Git and `.codex` boards remain explicit contract candidates until their data can cross an accepted privacy-safe admission boundary.
+The current presentation applies that same discipline recursively. The entry atlas synthesizes portfolio reach, request flow, reliability, agent activity, and evidence quality. Each domain opens into denser analysis, project pages preserve the originating analytical context, and evidence ledgers expose exact admitted facts and interpretation limits. Unsupported capacity, cost, delivery, and code-operation domains remain absent rather than displaying speculative boards.
 
 ## Information Hierarchy
 
@@ -30,6 +30,7 @@ Each layer may narrow or derive from the layer above it. No downstream layer may
 - [Source registry](catalog/sources.yaml) records authority, grain, cadence, sensitivity, and disposition for each known source.
 - [Metric catalog](catalog/metrics.yaml) records candidate metric buckets, definitions, coverage, and explicit exclusions.
 - [Platform landscape](research/platform-landscape.md) compares instrumentation, transformation, storage, observability, product analytics, and later presentation options.
+- [Drilldown dashboard evidence portfolio](research/drilldown-dashboard-evidence/README.md) compares executive, tactical, operational, exploratory, and evidence views with attributed screenshots and a T3Code recommendation.
 - [Lakebed experiment reflection](research/lakebed-experiment-reflection.md) records the bootstrap process, observed friction, architectural fit, and constructive product feedback.
 - [Lakebed analytics capsule](experiments/lakebed-analytics/README.md) contains the synthetic publication model, analytical client, and coherent-reader stress check.
 - [Rust analytics service](app/README.md) contains the read-only extraction pipeline, DuckDB publication store, aggregate API, dashboard, and runtime health surface.

@@ -6,11 +6,11 @@ The service opens the source SQLite database with explicit read-only flags over 
 
 Accepted portfolio, project-rollup, project-day, activity, and source-quality facts are published atomically into an embedded DuckDB file and cached in memory for the JSON API. The dashboard, project drilldown, API, health endpoints, and Prometheus metrics are served by the same Axum process.
 
-## Dashboard Hierarchy Experiment
+## Field Atlas Interface
 
-The dashboard navigates from the highest portfolio abstraction through project synthesis, source-specific boards, and an exact evidence ledger. Each level is a separate component boundary. More specific layers retain detail while higher layers elevate only deterministic signals supported by admitted evidence.
+The entry view is a synthesized portfolio atlas across five admitted analytical domains: portfolio reach, request flow, request outcomes, agent activity, and evidence quality. Each elevated fact opens a denser domain view. Project links preserve the originating domain in the URL, and every project provides a deepest-layer evidence ledger with exact values, grain, denominators, and interpretation limits.
 
-T3Code is the only admitted analytical source in the current contract. Git and `.codex` have independent board components that describe their proposed signals, grain, and privacy boundary without inventing values or silently joining protected topology. They cannot contribute to project synthesis until separate adapters and admission contracts are accepted.
+T3Code remains the only admitted analytical source in the current contract. The interface does not display speculative source boards, invent qualitative thresholds, or infer productivity. Capacity, cost, delivery, and code-operation views remain absent until a separate privacy-safe source and aggregate contract are accepted.
 
 ## Local Development
 

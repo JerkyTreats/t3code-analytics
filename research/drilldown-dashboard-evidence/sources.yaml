@@ -1,0 +1,125 @@
+schema_version: 1
+package_id: drilldown-dashboard-evidence-2026-08-21
+captured_at: 2026-08-21
+capture_method:
+  discovery: public web search and browser inspection
+  asset_collection: direct download of official vendor-hosted image
+  transformation: contact sheets only; numbered source assets remain unchanged
+rights_note: Vendor images are retained as attributed research evidence. Review redistribution requirements before publishing outside this private repository.
+
+assets:
+  - file: screenshots/01-tableau-executive-overview.png
+    vendor: Tableau
+    pattern: dominant overview with subordinate detail views
+    page_url: https://help.tableau.com/current/pro/desktop/en-us/dashboards_best_practices.htm
+    image_url: https://help.tableau.com/current/pro/desktop/en-us/Img/dashboard_best_practices3.png
+    dimensions: 818x709
+    sha256: f051da2056fd0ec0af1e9ffe4e794e0fa24b7445aaa1f4b06c5f803bd8dd2c68
+
+  - file: screenshots/02-amplitude-executive-reporting.png
+    vendor: Amplitude
+    pattern: executive scorecards with change, target, trend, and funnel
+    page_url: https://amplitude.com/blog/monitor-digital-business-performance-executive-reporting-dashboards
+    image_url: https://cdn.sanity.io/images/l5rq9j6r/production/c7c79a26dd188c63ae3a43f47b414271a1789b9c-3840x3237.png
+    dimensions: 3840x3237
+    sha256: 0b12be59bd831668cc3279dda3490262ce08064d81dbd31b47ff0b0c788154b2
+
+  - file: screenshots/03-mixpanel-context-board.webp
+    vendor: Mixpanel
+    pattern: analysis combined with written and media context
+    page_url: https://mixpanel.com/blog/boards-collaborate-cards-mixpanel-feature-update/
+    image_url: https://thesignalprod.wpenginepowered.com/wp-content/uploads/2025/02/Mixpanel_Boards_collaborative_product_insights_after-1024x609-1-768x457.webp
+    dimensions: 768x457
+    sha256: 6340b143d64d55d1566134a31bc78800e7d6eddaca3f8f911b895b8911bac9f3
+
+  - file: screenshots/04-looker-overview.png
+    vendor: Google Looker
+    pattern: filtered overview made from independent analytical tiles
+    page_url: https://docs.cloud.google.com/looker/docs/viewing-dashboards?hl=en
+    image_url: https://docs.cloud.google.com/static/looker/docs/images/new-dashboard-example-2206.png
+    dimensions: 1600x1716
+    sha256: c00a6f89c23ac54289e12928e72709c57039b39ca661d859ee1de83d314ec8e1
+
+  - file: screenshots/05-looker-drill-menu.png
+    vendor: Google Looker
+    pattern: mark-level menu with multiple semantic drill paths
+    page_url: https://docs.cloud.google.com/looker/docs/viewing-dashboards?hl=en
+    image_url: https://docs.cloud.google.com/static/looker/docs/images/dash-beta-drill-menu-718.png
+    dimensions: 990x990
+    sha256: ad99dae0130d6bae9dcaba23d021c329e5cda5ebd3fc4ac2c9f106b4eb9b0a8f
+
+  - file: screenshots/06-looker-drill-overlay.png
+    vendor: Google Looker
+    pattern: context-preserving filtered detail overlay
+    page_url: https://docs.cloud.google.com/looker/docs/viewing-dashboards?hl=en
+    image_url: https://docs.cloud.google.com/static/looker/docs/images/dash-beta-drill-overlay-718.png
+    dimensions: 1436x606
+    sha256: f4c5b2dc2f049c6abd4b5b693a74a5f0ed9ab6f3388b641d9095a95658a7f251
+
+  - file: screenshots/07-power-bi-additional-depth.png
+    vendor: Microsoft Power BI
+    pattern: summary to transaction-level drillthrough
+    page_url: https://learn.microsoft.com/en-us/power-bi/guidance/report-drillthrough
+    image_url: https://learn.microsoft.com/en-us/power-bi/guidance/media/report-drillthrough/suggestion-drillthrough-add-depth.png
+    dimensions: 798x938
+    sha256: 9970afad3d2b2ed74ec1c4eb07b651d2f07842b1609155ee2837f4d402c8d95d
+
+  - file: screenshots/08-power-bi-broader-perspective.png
+    vendor: Microsoft Power BI
+    pattern: selected row to prepared analytical composition
+    page_url: https://learn.microsoft.com/en-us/power-bi/guidance/report-drillthrough
+    image_url: https://learn.microsoft.com/en-us/power-bi/guidance/media/report-drillthrough/suggestion-drillthrough-broader-perspective.png
+    dimensions: 874x735
+    sha256: 18ea453d825e953cbfa14be16d05792d180a3aeb347cbb9edf7077c521eb77ee
+
+  - file: screenshots/09-grafana-drilldown-links.png
+    vendor: Grafana
+    pattern: aggregate chart above ranked entities with explicit drill links
+    page_url: https://grafana.com/docs/grafana/latest/visualizations/dashboards/build-dashboards/best-practices/
+    image_url: https://grafana.com/static/img/docs/best-practices/drill-down-example.png
+    dimensions: 1508x916
+    sha256: 4a67a5c5361b1d11b4b12f4c3202cff4594b8fba29ee5fb158d9b883c2a4301e
+
+  - file: screenshots/10-grafana-service-hierarchy.png
+    vendor: Grafana
+    pattern: repeated diagnostic grammar across service hierarchy
+    page_url: https://grafana.com/docs/grafana/latest/visualizations/dashboards/build-dashboards/best-practices/
+    image_url: https://grafana.com/static/img/docs/best-practices/service-hierarchy-example.png
+    dimensions: 1502x1562
+    sha256: fd92c29ba1a48b96d026217ec33cd70f85e98fe35f9c024991fa799d30364b2c
+
+  - file: screenshots/11-grafana-metrics-drilldown-sidebar.png
+    vendor: Grafana
+    pattern: dense queryless metric investigation with navigation rail
+    page_url: https://grafana.com/blog/whats-new-in-grafana-metrics-drilldown-advanced-filtering-options-ui-enhancements-and-more/
+    image_url: https://a-us.storyblok.com/f/1022730/c6aa485ce6/sidebar-menu.png
+    dimensions: 502x546
+    sha256: 35e1056dcfce270a51a7f6cef2033bbc27babd52aa67a9839317a26b5fd3c414
+
+  - file: screenshots/12-grafana-metrics-group-by-label.png
+    vendor: Grafana
+    pattern: group-by control for repeated exploratory pivots
+    page_url: https://grafana.com/blog/whats-new-in-grafana-metrics-drilldown-advanced-filtering-options-ui-enhancements-and-more/
+    image_url: https://a-us.storyblok.com/f/1022730/c22b55e013/group-by-labels.png
+    dimensions: 307x400
+    sha256: 8186a5b90d8c8b9709581cacf6d98a24b32ee0730e4a5152208b7dfadff5aea2
+
+derived_assets:
+  - file: screenshots/contact-sheet-entry-views.jpg
+    inputs:
+      - screenshots/01-tableau-executive-overview.png
+      - screenshots/02-amplitude-executive-reporting.png
+      - screenshots/03-mixpanel-context-board.webp
+  - file: screenshots/contact-sheet-drilldown-patterns.jpg
+    inputs:
+      - screenshots/04-looker-overview.png
+      - screenshots/05-looker-drill-menu.png
+      - screenshots/06-looker-drill-overlay.png
+      - screenshots/07-power-bi-additional-depth.png
+      - screenshots/08-power-bi-broader-perspective.png
+  - file: screenshots/contact-sheet-operational-drilldown.jpg
+    inputs:
+      - screenshots/09-grafana-drilldown-links.png
+      - screenshots/10-grafana-service-hierarchy.png
+      - screenshots/11-grafana-metrics-drilldown-sidebar.png
+      - screenshots/12-grafana-metrics-group-by-label.png
