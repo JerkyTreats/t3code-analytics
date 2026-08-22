@@ -2,6 +2,8 @@
 
 Captured 2026-08-21
 
+Style follow-up captured 2026-08-22: [Dark mode with green identity](dark-green-style-guides.md)
+
 ## Executive conclusion
 
 The strongest direction for T3Code is a signal atlas with explicit domain drilldown.
