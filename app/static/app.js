@@ -209,8 +209,6 @@ function showError(title, note) {
 
 function renderDomain(domain) {
   const meta = domainMeta[domain];
-  setText("domain-crumb", meta.title);
-  setText("domain-kicker", meta.kicker);
   setText("domain-title", meta.title);
   setText("domain-description", meta.description);
   const target = byId("domain-content");
@@ -225,67 +223,88 @@ function renderDomain(domain) {
 
 function renderPortfolioDomain(target) {
   const { summary, projects } = dashboard;
-  target.append(metricRibbon([
-    ["Active projects", number.format(summary.activeProjects7d), `${number.format(summary.activeProjects24h)} in the past 24 hours`, true],
-    ["Current projects", number.format(summary.currentProjects), "Projected current work contexts"],
-    ["Top three share", formatPercent(summary.topThreeTurnShare), "Share of current-window requested turns"],
-    ["Dormant beyond 30d", number.format(summary.dormantProjects30d), "Current projects without recent work"],
-  ]));
-
-  const grid = node("section", "analysis-grid");
-  const distribution = panel("Project distribution", "Requested turns · rolling seven days", "analysis-panel");
   const ranked = [...projects].sort((a, b) => b.turns7d - a.turns7d).slice(0, 10);
+  const distribution = panel("Requested turns by project", "Rolling seven days", "signal-panel");
+  distribution.heading.append(signalStats([
+    [number.format(summary.activeProjects7d), "active projects"],
+    [formatPercent(summary.topThreeTurnShare), "in top three"],
+    [number.format(summary.activeThreads), "active threads"],
+  ]));
   distribution.body.append(barList(ranked.map(project => ({ label: project.title, value: project.turns7d, display: number.format(project.turns7d) }))));
+  target.append(distribution.element);
+
+  const grid = node("section", "analysis-grid support-grid");
   const movement = panel("Window movement", "Direct observations", "side-panel");
   movement.body.append(factList([
     ["Current-window only", number.format(summary.currentOnlyProjects), "Active now and quiet in the preceding seven days. This does not mean newly created."],
     ["Quiet now", number.format(summary.coolingProjects), "Active in the preceding window and quiet in the current window."],
+    ["Dormant beyond 30d", number.format(summary.dormantProjects30d), "Current projects without recent work."],
+  ]));
+  const context = panel("Portfolio context", "Current observation", "analysis-panel");
+  context.body.append(factList([
+    ["Current projects", number.format(summary.currentProjects), "Projected current work contexts."],
+    ["Active in 24h", number.format(summary.activeProjects24h), "Projects with admitted work in the past 24 hours."],
     ["Active threads", number.format(summary.activeThreads), "Distinct threads with a requested turn in the current window."],
     ["Actionable plans", number.format(summary.actionablePlanThreads), "Current threads with admitted actionable-plan state."],
   ]));
-  grid.append(distribution.element, movement.element);
+  grid.append(context.element, movement.element);
   target.append(grid, projectTablePanel(projects, "portfolio"));
 }
 
 function renderFlowDomain(target) {
   const { summary, daily, projects } = dashboard;
   const delta = summary.turnsRequested - summary.turnsPrevious;
-  target.append(metricRibbon([
-    ["Requested turns", number.format(summary.turnsRequested), "Current seven-day request cohort", true],
-    ["Preceding window", number.format(summary.turnsPrevious), "Immediately preceding seven days"],
-    ["Absolute change", signedNumber(delta), "Current minus preceding window"],
-    ["Active threads", number.format(summary.activeThreads), "Threads with a requested turn"],
+  const trend = panel("Requested turns", "Forty-two day trace", "signal-panel");
+  trend.heading.append(signalStats([
+    [number.format(summary.turnsRequested), "current seven days"],
+    [signedNumber(delta), "versus preceding"],
+    [number.format(summary.activeThreads), "active threads"],
   ]));
-  const grid = node("section", "analysis-grid");
-  const trend = panel("Daily request flow", "Forty-two day trace", "analysis-panel");
   const chart = node("div", "chart chart-large"); chart.id = "flow-chart"; chart.setAttribute("role", "img"); chart.setAttribute("aria-label", "Daily requested turns");
   const footer = chartFooter("flow-range-start", "flow-chart-peak", "flow-range-end");
   const details = dataDisclosure("flow-chart-data");
   trend.body.append(chart, footer, details);
-  const context = panel("Window comparison", "No qualitative threshold", "side-panel");
-  context.body.append(factList([
-    ["Current", number.format(summary.turnsRequested), "Requested turns in the rolling seven-day window."],
-    ["Preceding", number.format(summary.turnsPrevious), "Requested turns in the immediately preceding window."],
-    ["Difference", signedNumber(delta), comparisonLabel(summary.turnsRequested, summary.turnsPrevious)],
-    ["Daily peak", number.format(Math.max(...daily.map(row => row.turnsRequested), 0)), "Highest observed daily count in the displayed trace."],
-  ]));
-  grid.append(trend.element, context.element);
-  target.append(grid);
+  target.append(trend.element);
   renderLineChart("flow-chart", daily, "turnsRequested", "flow-range-start", "flow-range-end", "flow-chart-peak");
   renderDataTable("flow-chart-data", ["UTC date", "Requested turns", "Completed", "Error", "Interrupted"], daily.map(row => [formatDay(row.day), number.format(row.turnsRequested), number.format(row.turnsCompleted), number.format(row.turnsError), number.format(row.turnsInterrupted)]), "Daily request and outcome counts");
+
+  const grid = node("section", "analysis-grid support-grid");
+  const comparison = panel("Current versus preceding", "Equal seven-day windows", "analysis-panel");
+  comparison.body.append(barList([
+    { label: "Current", value: summary.turnsRequested, display: number.format(summary.turnsRequested) },
+    { label: "Preceding", value: summary.turnsPrevious, display: number.format(summary.turnsPrevious), tone: "moss" },
+  ]));
+  const context = panel("Reading", "Exact observations", "side-panel");
+  context.body.append(factList([
+    ["Difference", signedNumber(delta), comparisonLabel(summary.turnsRequested, summary.turnsPrevious)],
+    ["Daily peak", number.format(Math.max(...daily.map(row => row.turnsRequested), 0)), "Highest observed daily count in the displayed trace."],
+    ["Cohort", "Request time", "Turns belong to the window in which they were requested."],
+    ["Threshold", "None", "Movement is shown without a qualitative score."],
+  ]));
+  grid.append(comparison.element, context.element);
+  target.append(grid);
   target.append(projectTablePanel([...projects].sort((a, b) => b.turns7d - a.turns7d), "flow", "Projects carrying current flow"));
 }
 
 function renderReliabilityDomain(target) {
   const { summary, daily, projects } = dashboard;
   const terminal = terminalCount(summary);
-  target.append(metricRibbon([
-    ["Terminal completion", formatPercent(summary.terminalCompletionRate), `${number.format(terminal)} terminal turns`, true],
-    ["Error", number.format(summary.turnsError), "Terminal request state"],
-    ["Interrupted", number.format(summary.turnsInterrupted), "Terminal request state"],
-    ["Nonterminal", number.format(summary.turnsInFlight), "Current source state, excluded from rate"],
+  const trace = panel("Outcome exceptions over time", "Daily error and interruption counts", "signal-panel");
+  trace.heading.append(signalStats([
+    [formatPercent(summary.terminalCompletionRate), "terminal completion"],
+    [number.format(summary.turnsError + summary.turnsInterrupted), "exceptions"],
+    [number.format(summary.turnsInFlight), "nonterminal"],
   ]));
-  const grid = node("section", "analysis-grid");
+  const chart = node("div", "chart chart-large"); chart.id = "reliability-chart"; chart.setAttribute("role", "img"); chart.setAttribute("aria-label", "Daily errors and interruptions");
+  const range = node("div", "chart-footer");
+  range.append(node("span", "", daily.length ? formatDay(daily[0].day) : "—"), node("strong", "", "Error and interrupted"), node("span", "", daily.length ? formatDay(daily.at(-1).day) : "—"));
+  const details = dataDisclosure("reliability-chart-data");
+  trace.body.append(chart, range, details);
+  target.append(trace.element);
+  renderOutcomeChart("reliability-chart", daily);
+  renderDataTable("reliability-chart-data", ["UTC date", "Completed", "Error", "Interrupted", "Requested"], daily.map(row => [formatDay(row.day), number.format(row.turnsCompleted), number.format(row.turnsError), number.format(row.turnsInterrupted), number.format(row.turnsRequested)]), "Daily request outcomes");
+
+  const grid = node("section", "analysis-grid support-grid");
   const outcomes = panel("Terminal outcome composition", "Current request cohort", "analysis-panel");
   outcomes.body.append(stackBar([
     [summary.turnsCompleted, terminal, "complete", "Completed"],
@@ -305,14 +324,6 @@ function renderReliabilityDomain(target) {
   ]));
   grid.append(outcomes.element, exceptions.element);
   target.append(grid);
-
-  const trace = panel("Outcome exceptions over time", "Daily error and interruption counts", "full-panel");
-  const chart = node("div", "chart chart-large"); chart.id = "reliability-chart"; chart.setAttribute("role", "img"); chart.setAttribute("aria-label", "Daily errors and interruptions");
-  const details = dataDisclosure("reliability-chart-data");
-  trace.body.append(chart, details);
-  target.append(trace.element);
-  renderOutcomeChart("reliability-chart", daily);
-  renderDataTable("reliability-chart-data", ["UTC date", "Completed", "Error", "Interrupted", "Requested"], daily.map(row => [formatDay(row.day), number.format(row.turnsCompleted), number.format(row.turnsError), number.format(row.turnsInterrupted), number.format(row.turnsRequested)]), "Daily request outcomes");
   const exceptionProjects = [...projects].filter(project => project.turnsError7d + project.turnsInterrupted7d + project.turnsInFlight > 0).sort((a, b) => b.turnsError7d + b.turnsInterrupted7d - a.turnsError7d - a.turnsInterrupted7d);
   target.append(projectTablePanel(exceptionProjects, "reliability", "Projects with current outcome exceptions"));
 }
@@ -320,15 +331,20 @@ function renderReliabilityDomain(target) {
 function renderActivityDomain(target) {
   const recent = dashboard.daily.slice(-dashboard.snapshot.windowDays);
   const sums = aggregateDaily(recent);
-  target.append(metricRibbon([
-    ["Tool starts", number.format(sums.toolStarts), "Occurrences in the current window", true],
-    ["Tool completions", number.format(sums.toolCompletions), "Occurrences in the current window"],
-    ["Plan updates", number.format(sums.planUpdates), "Occurrences in the current window"],
-    ["Runtime errors", number.format(sums.runtimeErrors), "Occurrences in the current window"],
+  const rates = panel("Agent operations", "Occurrences per one hundred requested turns", "signal-panel");
+  rates.heading.append(signalStats([
+    [number.format(sums.toolStarts), "tool starts"],
+    [number.format(sums.planUpdates), "plan updates"],
+    [number.format(sums.runtimeErrors), "runtime errors"],
   ]));
-  const grid = node("section", "analysis-grid");
-  const rates = panel("Activity rate", "Occurrences per one hundred requested turns", "analysis-panel");
   rates.body.append(barList(dashboard.activity.map(item => ({ label: activityLabel(item.kind), value: item.perHundredTurns, display: formatRate(item.perHundredTurns) }))));
+  target.append(rates.element);
+  const grid = node("section", "analysis-grid support-grid");
+  const completion = panel("Tool execution", "Current-window occurrences", "analysis-panel");
+  completion.body.append(barList([
+    { label: "Starts", value: sums.toolStarts, display: number.format(sums.toolStarts) },
+    { label: "Completions", value: sums.toolCompletions, display: number.format(sums.toolCompletions), tone: "moss" },
+  ]));
   const totals = panel("Current-window counts", "Raw admitted occurrences", "side-panel");
   totals.body.append(factList([
     ["Checkpoints", number.format(sums.checkpoints), "Aggregate system events."],
@@ -336,21 +352,19 @@ function renderActivityDomain(target) {
     ["Runtime errors", number.format(sums.runtimeErrors), "Runtime-error activity events, separate from turn outcome."],
     ["Requested turns", number.format(dashboard.summary.turnsRequested), "Denominator used for per-one-hundred rates."],
   ]));
-  grid.append(rates.element, totals.element);
+  grid.append(completion.element, totals.element);
   target.append(grid, projectTablePanel([...dashboard.projects].sort((a, b) => activityTotal(b) - activityTotal(a)), "activity", "Project activity context"));
 }
 
 function renderEvidenceDomain(target) {
   const { snapshot, activityCoverage, projects } = dashboard;
   const attribution = share(activityCoverage.attributedToTurn, activityCoverage.total);
-  target.append(metricRibbon([
-    ["Turn attribution", formatPercent(attribution), `${number.format(activityCoverage.attributedToTurn)} of ${number.format(activityCoverage.total)} occurrences`, true],
-    ["Projection lag", number.format(snapshot.projectionLag), "Source sequence minus projection sequence"],
-    ["Source freshness", formatDuration(snapshot.sourceFreshnessSeconds), "Age at aggregate generation"],
-    ["Contract", `v${number.format(snapshot.contractVersion)}`, `${number.format(snapshot.windowDays)} day current window`],
+  const coverage = panel("Attribution coverage", "Admitted activity occurrences", "signal-panel coverage-signal");
+  coverage.heading.append(signalStats([
+    [formatPercent(attribution), "turn attributed"],
+    [number.format(snapshot.projectionLag), "projection lag"],
+    [formatDuration(snapshot.sourceFreshnessSeconds), "source freshness"],
   ]));
-  const grid = node("section", "analysis-grid");
-  const coverage = panel("Attribution coverage", "Admitted activity occurrences", "analysis-panel");
   coverage.body.append(stackBar([
     [activityCoverage.attributedToTurn, activityCoverage.total, "attributed", "Turn attributed"],
     [activityCoverage.threadLevel, activityCoverage.total, "thread-level", "Thread level"],
@@ -360,15 +374,15 @@ function renderEvidenceDomain(target) {
     ["thread-level", `${number.format(activityCoverage.threadLevel)} thread level`],
     ["unresolved", `${number.format(activityCoverage.unresolvedTurn)} unresolved turn`],
   ]));
-  const source = panel("Snapshot contract", "Operational facts", "side-panel");
+  target.append(coverage.element);
+  const source = panel("Snapshot contract", `Contract v${number.format(snapshot.contractVersion)} · ${number.format(snapshot.windowDays)} day window`, "full-panel compact-panel");
   source.body.append(factList([
     ["Generated", formatTime(snapshot.generatedAt), "Aggregate generation time."],
     ["Latest source event", formatTime(snapshot.sourceLatestAt), "Latest admitted source event time."],
     ["Source sequence", number.format(snapshot.sourceEventSequence), "Latest observed source event sequence."],
     ["Projection sequence", number.format(snapshot.projectionSequence), "Latest persisted projection sequence."],
   ]));
-  grid.append(coverage.element, source.element);
-  target.append(grid, methodCards(), evidenceProjectTable(projects));
+  target.append(source.element, methodCards(), evidenceProjectTable(projects));
 }
 
 function renderProject(project, from) {
@@ -382,12 +396,12 @@ function renderProject(project, from) {
   const target = byId("project-content");
   target.replaceChildren();
   const terminal = terminalCount(project, "7d");
-  target.append(metricRibbon([
+  const projectMetrics = metricRibbon([
     ["Requested turns", number.format(project.turns7d), comparisonLabel(project.turns7d, project.turnsPrevious), true],
     ["Active threads", number.format(project.activeThreads7d), `${number.format(project.newThreads7d)} first active in this window`],
     ["Portfolio share", formatPercent(project.turnShare7d), "Share of current project-linked turns"],
     ["Terminal completion", formatPercent(project.terminalCompletionRate7d), `${number.format(terminal)} terminal turns`],
-  ]));
+  ]);
 
   const grid = node("section", "analysis-grid");
   const trend = panel("Project request flow", "Forty-two day trace", "analysis-panel");
@@ -407,7 +421,7 @@ function renderProject(project, from) {
     ["Nonterminal", number.format(project.turnsInFlight), "Excluded from terminal completion"],
   ]));
   grid.append(trend.element, outcome.element);
-  target.append(grid);
+  target.append(grid, projectMetrics);
   renderLineChart("project-chart", project.daily, "turnsRequested", "project-range-start", "project-range-end", "project-chart-peak");
   renderDataTable("project-chart-data", ["UTC date", "Requested turns", "Active threads"], project.daily.map(row => [formatDay(row.day), number.format(row.turnsRequested), number.format(row.activeThreads)]), `Daily request flow for ${project.title}`);
 
@@ -467,6 +481,16 @@ function metricRibbon(metrics) {
     ribbon.append(item);
   });
   return ribbon;
+}
+
+function signalStats(metrics) {
+  const list = node("div", "signal-stats");
+  metrics.forEach(([value, label]) => {
+    const item = node("div", "signal-stat");
+    item.append(node("strong", "", value), node("span", "", label));
+    list.append(item);
+  });
+  return list;
 }
 
 function panel(title, kicker, className) {
@@ -646,13 +670,26 @@ function renderLineChart(targetId, rows, field, startId, endId, peakId) {
   const target = byId(targetId);
   target.replaceChildren();
   if (!rows.length) { target.append(node("p", "empty-row", "No measured days in this window.")); return; }
-  const width = 1200; const height = 310; const pad = 16;
+  const width = 1200; const height = 360; const padX = 54; const padY = 18;
+  const plotWidth = width - padX * 2; const plotHeight = height - padY * 2;
   const max = Math.max(...rows.map(row => row[field]), 1);
-  const points = rows.map((row, index) => chartPoint(index, row[field], rows.length, max, width, height, pad));
-  const areaPoints = [`0,${height}`, ...points, `${width},${height}`].join(" ");
+  const points = rows.map((row, index) => chartPoint(index, row[field], rows.length, max, width, height, padX, padY));
+  const areaPoints = [`${padX},${height - padY}`, ...points, `${width - padX},${height - padY}`].join(" ");
   const gradientId = `${targetId}-area-fill`;
-  const grid = [0.25, 0.5, 0.75].map(value => `<line x1="0" x2="${width}" y1="${height * value}" y2="${height * value}" />`).join("");
-  target.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9ff53" stop-opacity="0.24"/><stop offset="1" stop-color="#d9ff53" stop-opacity="0.01"/></linearGradient></defs><g class="grid">${grid}</g><polygon class="area" fill="url(#${gradientId})" points="${areaPoints}"/><polyline class="line" points="${points.join(" ")}"/></svg>`;
+  const grid = [0, 0.25, 0.5, 0.75, 1].map(value => {
+    const y = height - padY - value * plotHeight;
+    return `<line x1="${padX}" x2="${width - padX}" y1="${y}" y2="${y}" />`;
+  }).join("");
+  const windowDays = Math.max(1, dashboard?.snapshot?.windowDays || 7);
+  const windowIndex = Math.max(0, rows.length - windowDays);
+  const windowX = rows.length === 1 ? padX : padX + windowIndex / (rows.length - 1) * plotWidth;
+  const hitPoints = rows.map((row, index) => {
+    const [cx, cy] = points[index].split(",");
+    return `<circle class="data-hit" cx="${cx}" cy="${cy}" r="9"><title>${formatDay(row.day)}: ${number.format(row[field])}</title></circle>`;
+  }).join("");
+  const [endX, endY] = points.at(-1).split(",");
+  const scale = [max, Math.round(max / 2), 0].map((value, index) => `<span style="top:${index * 50}%">${number.format(value)}</span>`).join("");
+  target.innerHTML = `<div class="chart-y-scale" aria-hidden="true">${scale}</div><div class="chart-window-label" aria-hidden="true">Current ${windowDays}d</div><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="var(--chart-primary)" stop-opacity="0.14"/><stop offset="1" stop-color="var(--chart-primary)" stop-opacity="0.01"/></linearGradient></defs><rect class="current-window" x="${windowX}" y="${padY}" width="${width - padX - windowX}" height="${plotHeight}"/><g class="grid">${grid}</g><polygon class="area" fill="url(#${gradientId})" points="${areaPoints}"/><polyline class="line" points="${points.join(" ")}"/><circle class="end-point" cx="${endX}" cy="${endY}" r="5"/>${hitPoints}</svg>`;
   setText(startId, formatDay(rows[0].day));
   setText(endId, formatDay(rows.at(-1).day));
   setText(peakId, `Peak ${number.format(max)} daily turns`);
@@ -662,17 +699,26 @@ function renderOutcomeChart(targetId, rows) {
   const target = byId(targetId);
   target.replaceChildren();
   if (!rows.length) { target.append(node("p", "empty-row", "No measured days in this window.")); return; }
-  const width = 1200; const height = 310; const barWidth = width / rows.length;
+  const width = 1200; const height = 360; const padX = 54; const padY = 18;
+  const plotWidth = width - padX * 2; const plotHeight = height - padY * 2; const barWidth = plotWidth / rows.length;
   const max = Math.max(...rows.map(row => row.turnsError + row.turnsInterrupted), 1);
   const bars = rows.map((row, index) => {
-    const errorHeight = row.turnsError / max * (height - 24);
-    const interruptedHeight = row.turnsInterrupted / max * (height - 24);
-    const x = index * barWidth + barWidth * 0.15;
+    const errorHeight = row.turnsError / max * plotHeight;
+    const interruptedHeight = row.turnsInterrupted / max * plotHeight;
+    const x = padX + index * barWidth + barWidth * 0.15;
     const w = Math.max(barWidth * 0.7, 1);
-    return `<rect class="bar-error" x="${x}" y="${height - errorHeight}" width="${w}" height="${errorHeight}"/><rect class="bar-interrupted" x="${x}" y="${height - errorHeight - interruptedHeight}" width="${w}" height="${interruptedHeight}"/>`;
+    const baseline = height - padY;
+    return `<g><title>${formatDay(row.day)}: ${number.format(row.turnsError)} error, ${number.format(row.turnsInterrupted)} interrupted</title><rect class="bar-error" x="${x}" y="${baseline - errorHeight}" width="${w}" height="${errorHeight}"/><rect class="bar-interrupted" x="${x}" y="${baseline - errorHeight - interruptedHeight}" width="${w}" height="${interruptedHeight}"/></g>`;
   }).join("");
-  const grid = [0.25, 0.5, 0.75].map(value => `<line x1="0" x2="${width}" y1="${height * value}" y2="${height * value}" />`).join("");
-  target.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><g class="grid">${grid}</g>${bars}</svg>`;
+  const grid = [0, 0.25, 0.5, 0.75, 1].map(value => {
+    const y = height - padY - value * plotHeight;
+    return `<line x1="${padX}" x2="${width - padX}" y1="${y}" y2="${y}" />`;
+  }).join("");
+  const windowDays = Math.max(1, dashboard?.snapshot?.windowDays || 7);
+  const windowIndex = Math.max(0, rows.length - windowDays);
+  const windowX = padX + windowIndex * barWidth;
+  const scale = [max, Math.round(max / 2), 0].map((value, index) => `<span style="top:${index * 50}%">${number.format(value)}</span>`).join("");
+  target.innerHTML = `<div class="chart-y-scale" aria-hidden="true">${scale}</div><div class="chart-window-label" aria-hidden="true">Current ${windowDays}d</div><svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><rect class="current-window" x="${windowX}" y="${padY}" width="${width - padX - windowX}" height="${plotHeight}"/><g class="grid">${grid}</g>${bars}</svg>`;
 }
 
 function chartFooter(startId, peakId, endId) {
@@ -737,9 +783,9 @@ function aggregateDaily(rows) {
 }
 
 function activityTotal(project) { return project.activity.reduce((sum, item) => sum + item.count, 0); }
-function chartPoint(index, value, count, max, width, height, pad) {
-  const x = count === 1 ? width / 2 : index / (count - 1) * width;
-  const y = height - pad - value / max * (height - pad * 2);
+function chartPoint(index, value, count, max, width, height, padX, padY) {
+  const x = count === 1 ? width / 2 : padX + index / (count - 1) * (width - padX * 2);
+  const y = height - padY - value / max * (height - padY * 2);
   return `${x.toFixed(2)},${y.toFixed(2)}`;
 }
 

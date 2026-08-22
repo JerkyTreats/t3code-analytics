@@ -7,8 +7,8 @@
     <meta name="color-scheme" content="dark">
     <meta name="description" content="Private T3Code work analytics">
     <title>T3Code Field Atlas</title>
-    <link rel="stylesheet" href="/styles.css?v=olive-1">
-    <script type="module" src="/app.js?v=olive-1"></script>
+    <link rel="stylesheet" href="/styles.css?v=spectrum-2">
+    <script type="module" src="/app.js?v=spectrum-2"></script>
   </head>
   <body>
     <a class="skip-link" href="#content">Skip to analysis</a>
@@ -52,21 +52,6 @@
             <p class="intro-note">A high-signal entry into reach, flow, reliability, activity, and evidence quality. Every reading opens into its underlying view.</p>
           </header>
 
-          <section class="briefing-strip" aria-label="Current portfolio briefing">
-            <a class="briefing-cell briefing-lead" href="#domain/portfolio">
-              <span>Active reach</span><strong id="atlas-active-projects">—</strong><small id="atlas-active-context">—</small><em>Open portfolio →</em>
-            </a>
-            <a class="briefing-cell" href="#domain/flow">
-              <span>Requested turns</span><strong id="atlas-turns">—</strong><small id="atlas-turns-context">—</small><em>Inspect flow →</em>
-            </a>
-            <a class="briefing-cell" href="#domain/reliability">
-              <span>Terminal completion</span><strong id="atlas-completion">—</strong><small id="atlas-completion-context">—</small><em>Inspect outcomes →</em>
-            </a>
-            <a class="briefing-cell" href="#domain/evidence">
-              <span>Turn attribution</span><strong id="atlas-attribution">—</strong><small id="atlas-attribution-context">—</small><em>Inspect evidence →</em>
-            </a>
-          </section>
-
           <section class="atlas-grid">
             <article class="panel atlas-trend">
               <div class="panel-heading">
@@ -83,6 +68,21 @@
               <div id="attention-list" class="attention-list"></div>
               <p class="panel-footnote">Rows are direct observations, not severity scores.</p>
             </article>
+          </section>
+
+          <section class="briefing-strip" aria-label="Current portfolio briefing">
+            <a class="briefing-cell briefing-lead" href="#domain/portfolio">
+              <span>Active reach</span><strong id="atlas-active-projects">—</strong><small id="atlas-active-context">—</small><em>Open portfolio →</em>
+            </a>
+            <a class="briefing-cell" href="#domain/flow">
+              <span>Requested turns</span><strong id="atlas-turns">—</strong><small id="atlas-turns-context">—</small><em>Inspect flow →</em>
+            </a>
+            <a class="briefing-cell" href="#domain/reliability">
+              <span>Terminal completion</span><strong id="atlas-completion">—</strong><small id="atlas-completion-context">—</small><em>Inspect outcomes →</em>
+            </a>
+            <a class="briefing-cell" href="#domain/evidence">
+              <span>Turn attribution</span><strong id="atlas-attribution">—</strong><small id="atlas-attribution-context">—</small><em>Inspect evidence →</em>
+            </a>
           </section>
 
           <section class="domain-card-grid" aria-label="Analytical domains">
@@ -105,11 +105,8 @@
         </section>
 
         <section id="view-domain" class="view" hidden>
-          <nav class="crumbs" aria-label="Breadcrumb"><a href="#atlas">Atlas</a><span>→</span><strong id="domain-crumb">Domain</strong></nav>
-          <header class="page-intro domain-intro">
-            <div><p id="domain-kicker" class="kicker">Domain analysis</p><h1 id="domain-title">—</h1></div>
-            <p id="domain-description" class="intro-note">—</p>
-          </header>
+          <h1 id="domain-title" class="visually-hidden">—</h1>
+          <p id="domain-description" class="visually-hidden">—</p>
           <div id="domain-content"></div>
         </section>
 

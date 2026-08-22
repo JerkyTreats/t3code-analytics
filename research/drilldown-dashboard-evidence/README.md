@@ -4,6 +4,8 @@ Captured 2026-08-21
 
 Style follow-up captured 2026-08-22: [Dark mode with green identity](dark-green-style-guides.md)
 
+Visualization follow-up captured 2026-08-22: [Adobe Spectrum analytics visualization pass](adobe-spectrum-visualization-pass.md)
+
 ## Executive conclusion
 
 The strongest direction for T3Code is a signal atlas with explicit domain drilldown.
