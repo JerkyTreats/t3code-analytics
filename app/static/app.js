@@ -652,7 +652,7 @@ function renderLineChart(targetId, rows, field, startId, endId, peakId) {
   const areaPoints = [`0,${height}`, ...points, `${width},${height}`].join(" ");
   const gradientId = `${targetId}-area-fill`;
   const grid = [0.25, 0.5, 0.75].map(value => `<line x1="0" x2="${width}" y1="${height * value}" y2="${height * value}" />`).join("");
-  target.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1649d8" stop-opacity="0.28"/><stop offset="1" stop-color="#1649d8" stop-opacity="0.02"/></linearGradient></defs><g class="grid">${grid}</g><polygon class="area" fill="url(#${gradientId})" points="${areaPoints}"/><polyline class="line" points="${points.join(" ")}"/></svg>`;
+  target.innerHTML = `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="${gradientId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#d9ff53" stop-opacity="0.24"/><stop offset="1" stop-color="#d9ff53" stop-opacity="0.01"/></linearGradient></defs><g class="grid">${grid}</g><polygon class="area" fill="url(#${gradientId})" points="${areaPoints}"/><polyline class="line" points="${points.join(" ")}"/></svg>`;
   setText(startId, formatDay(rows[0].day));
   setText(endId, formatDay(rows.at(-1).day));
   setText(peakId, `Peak ${number.format(max)} daily turns`);
